@@ -3,9 +3,7 @@
 # Matricules: 20153433 et ?????
 #
 # TODO: Écrire la description du programme
-#### en 5x5 on ajoute 8 pixels à droite et en bas pour ajouter un carré
-#### 4x4 c'est 47 x 47 pixels
-### TODO: Changer scale à 4 dans glisse() quand fini
+# TODO: Changer scale à 4 dans glisse() quand fini
 
 
 
@@ -14,7 +12,9 @@ gris = "#444"
 rouge = "#f00"
 vert = "#0f0"
 jaune = "#770"
+noir = "#000"
 
+from tp1 import *
 
 def taille_de_la_grille(format):
     if format == 4:
@@ -27,61 +27,77 @@ def taille_de_la_grille(format):
 
 def fleches_haut(x, couleur):    
     # Positions de la première flèche en haut à gauche
-    fleche = ([[9 + x, 2], [9 + x, 3]],     # barre 1
-              [[10 + x, 3], [10 + x, 4]],   # barre 2
-              [[11 + x, 4], [11 + x, 5]],   # barre 3
-              [[12 + x, 3], [12 + x, 4]],   # barre 4
-              [[13 + x, 2], [13 + x, 3]])   # barre 5
+    # Les ajustements en x et y permettent de dessiner les autres flèches
+    fleche = ([9 + x, 2, 1, 2],     # barre 1
+              [10 + x, 3, 1, 2],    # barre 2
+              [11 + x, 4, 1, 2],    # barre 3
+              [12 + x, 3, 1, 2],    # barre 4
+              [13 + x, 2, 1, 2])    # barre 5
     
     # Dessine la flèche barre par barre
-    for barre in range(len(fleche)):
-            for pixel in fleche[barre]:
-                draw_image(pixel[0], pixel[1], couleur)
+    for rect in range(len(fleche)):
+        fill_rectangle(fleche[rect][0],
+                       fleche[rect][1],
+                       fleche[rect][2],
+                       fleche[rect][3],
+                       couleur)
     return fleche
                     
 def fleches_bas(x, dims, couleur):
     y = dims.hauteur
     # Positions de la première flèche en bas à gauche
-    fleche = ([[9 + x, y - 3], [9 + x, y - 4]],    # barre 1
-              [[10 + x, y - 4], [10 + x, y - 5]],  # barre 2
-              [[11 + x, y - 5], [11 + x, y - 6]],  # barre 3
-              [[12 + x, y - 4], [12 + x, y - 5]],  # barre 4
-              [[13 + x, y - 3], [13 + x, y - 4]])  # barre 5
+    # Les ajustements en x et y permettent de dessiner les autres flèches
+    fleche = ([9 + x, y - 4, 1, 2],   # barre 1
+              [10 + x, y - 5, 1, 2],  # barre 2
+              [11 + x, y - 6, 1, 2],  # barre 3
+              [12 + x, y - 5, 1, 2],  # barre 4
+              [13 + x, y - 4, 1, 2])  # barre 5
     
     # Dessine la flèche barre par barre
-    for barre in range(len(fleche)):
-            for pixel in fleche[barre]:
-                draw_image(pixel[0], pixel[1], couleur)
+    for rect in range(len(fleche)):
+        fill_rectangle(fleche[rect][0],
+                       fleche[rect][1],
+                       fleche[rect][2],
+                       fleche[rect][3],
+                       couleur)
     return fleche
 
 def fleches_gauche(y, couleur):
     # Positions de la première flèche en haut à gauche
-    fleche = ([[2, 9 + y], [3, 9 + y]],     # barre 1
-              [[3, 10 + y], [4, 10 + y]],   # barre 2
-              [[4, 11 + y], [5, 11 + y]],   # barre 3
-              [[3, 12 + y], [4, 12 + y]],   # barre 4
-              [[2, 13 + y], [3, 13 + y]])   # barre 5
+    # Les ajustements en x et y permettent de dessiner les autres flèches
+    fleche = ([2, 9 + y, 2, 1],    # barre 1
+              [3, 10 + y, 2, 1],   # barre 2
+              [4, 11 + y, 2, 1],   # barre 3
+              [3, 12 + y, 2, 1],   # barre 4
+              [2, 13 + y, 2, 1])   # barre 5
     
     # Dessine la flèche barre par barre
-    for barre in range(len(fleche)):
-            for pixel in fleche[barre]:
-                draw_image(pixel[0], pixel[1], couleur)
+    for rect in range(len(fleche)):
+        fill_rectangle(fleche[rect][0],
+                       fleche[rect][1],
+                       fleche[rect][2],
+                       fleche[rect][3],
+                       couleur)
                 
     return fleche
                     
 def fleches_droite(y, dims, couleur):
     x = dims.largeur
     # Positions de la première flèche en haut à droite
-    fleche = ([[x - 3, 9 + y], [x - 4, 9 + y]],     # barre 1
-              [[x - 4, 10 + y], [x - 5, 10 + y]],   # barre 2
-              [[x - 5, 11 + y], [x - 6, 11 + y]],   # barre 3
-              [[x - 4, 12 + y], [x - 5, 12 + y]],   # barre 4
-              [[x - 3, 13 + y], [x - 4, 13 + y]])   # barre 5
+    # Les ajustements en x et y permettent de dessiner les autres flèches
+    fleche = ([x - 4, 9 + y, 2, 1],     # barre 1
+              [x - 5, 10 + y, 2, 1],    # barre 2
+              [x - 6, 11 + y, 2, 1],    # barre 3
+              [x - 5, 12 + y, 2, 1],    # barre 4
+              [x - 4, 13 + y, 2, 1])    # barre 5
     
     # Dessine la flèche barre par barre
-    for barre in range(len(fleche)):
-            for pixel in fleche[barre]:
-                draw_image(pixel[0], pixel[1], couleur)
+    for rect in range(len(fleche)):
+        fill_rectangle(fleche[rect][0],
+                       fleche[rect][1],
+                       fleche[rect][2],
+                       fleche[rect][3],
+                       couleur)
     
     return fleche
                     
@@ -112,30 +128,32 @@ def creer_matrice(format):
     
 def lignes_horizontales(dims, y, couleur):
     x = dims.largeur
-    ligne = ([range(7, x - 7), range(7 + y, 8 + y)],         # haut
-             [range(7, x - 7), range(15 + y, 16 + y)],       # bas
-             [range(x - 8, x - 7), range(7 + y, 16 + y)],    # droite
-             [range(7, 8), range(7 + y, 16 + y)])            # gauche
+    ligne = ([7, 7 + y, x - 15, 1],     # haut
+             [7, 15 + y, x - 15, 1],    # bas
+             [7, 7 + y, 1, 9],          # gauche
+             [x - 8, 7 + y, 1, 9])      # droite
     
-    for barre in range(len(ligne)):
-        for x in ligne[barre][0]:
-            for y in ligne[barre][1]:
-                draw_image(x, y, couleur)
-    
+    for rect in range(len(ligne)):
+        fill_rectangle(ligne[rect][0],
+                       ligne[rect][1],
+                       ligne[rect][2],
+                       ligne[rect][3],
+                       couleur)
     return ligne
 
 def lignes_verticales(dims, x, couleur):
     y = dims.hauteur
-    ligne = ([range(7 + x, 16 + x), range(7, 8)],           # haut
-             [range(7 + x, 16 + x), range(y - 8, y - 7)],   # bas
-             [range(7 + x, 8 + x), range(7, y - 8)],        # droite
-             [range(15 + x, 16 +x ), range(7, y - 8)])      # gauche
+    ligne = ([7 + x, 7, 9, 1],           # haut
+             [7 + x, y - 8, 9, 1],       # bas
+             [7 + x, 7, 1, y - 15],      # gauche
+             [15 + x, 7, 1, y - 15])     # droite
     
-    for barre in range(len(ligne)):
-        for x in ligne[barre][0]:
-            for y in ligne[barre][1]:
-                draw_image(x, y, couleur)
-    
+    for rect in range(len(ligne)):
+        fill_rectangle(ligne[rect][0],
+                       ligne[rect][1],
+                       ligne[rect][2],
+                       ligne[rect][3],
+                       couleur)
     return ligne
     
 
@@ -152,38 +170,124 @@ def initialisation_grille(dims, couleur):
     
     return grille
 
-def ajouter_jeton(grille, index, horizontal, joueur):
-    pass
+def initialisation_jetons(dims):
+    taille_matrice = (dims.largeur - 14) // 8
+    jetons = creer_matrice(taille_matrice)
+    return jetons
+
+def ajouter_jeton(jetons, index, position, joueur):
+    # La position tourne en sens horloge (haut = 0, droite = 1, ...)
+    if position == 0:
+        decalage_bas(jetons, index, joueur)
+    elif position == 1:
+        decalage_gauche(jetons, index, joueur, True)
+    elif position == 2:
+        decalage_haut(jetons, index, joueur)
+    elif position == 3:
+        decalage_droite(jetons, index, joueur, True)
+    dessiner_jetons(jetons)
+    
+def decalage_gauche(jetons, index, joueur, matrice):
+    # Ajoute un élément à droite pour décaler la ligne vers la gauche
+    if matrice:
+        # Décale une ligne dans la matrice complète
+        nouvelle_ligne = jetons[index][1:] + [joueur]
+        jetons[index] = nouvelle_ligne
+
+    else:
+        # Décale une ligne donnée
+        ligne_decalee = jetons[1:] + [joueur]
+        return ligne_decalee
+
+def decalage_droite(jetons, index, joueur, matrice):
+    # Ajoute un élément à gauche pour décaler la ligne vers la droite
+    if matrice:
+        # Décale une ligne dans la matrice complète
+        nouvelle_ligne = [joueur] + jetons[index][:-1]
+        jetons[index] = nouvelle_ligne
+
+    else:
+        # Décale une ligne donnée
+        ligne_decalee = [joueur] + jetons[:-1]
+        return ligne_decalee
+
+def decalage_haut(jetons, index, joueur):
+    colonne_originale = []
+    
+    # Extraction des valeurs originales des jetons
+    for ligne in jetons:
+        colonne_originale.append(ligne[index])
+    
+    # Décalage des valeurs des jetons
+    nouvelle_colonne = decalage_gauche(colonne_originale, 0, joueur, False)
+    
+    # Remplacement des valeurs des jetons dans la matrice
+    for ligne in range(len(jetons)):
+        jetons[ligne][index] = nouvelle_colonne[ligne]
+        
+    
+def decalage_bas(jetons, index, joueur):
+    colonne_originale = []
+    
+    # Extraction des valeurs originales des jetons
+    for ligne in jetons:
+        colonne_originale.append(ligne[index])
+    
+    # Décalage des valeurs des jetons
+    nouvelle_colonne = decalage_droite(colonne_originale, 0, joueur, False)
+    
+    # Remplacement des valeurs des jetons dans la matrice
+    for ligne in range(len(jetons)):
+        jetons[ligne][index] = nouvelle_colonne[ligne]
 
 def dessiner_fleche(fleche, couleur):
-    for barre in range(len(fleche)):
-        for pixel in fleche[barre]:
-            draw_image(pixel[0], pixel[1], couleur)
-            
+    for rect in range(len(fleche)):
+        fill_rectangle(fleche[rect][0],
+                       fleche[rect][1],
+                       fleche[rect][2],
+                       fleche[rect][3],
+                       couleur)
+
+def dessiner_jetons(jetons):
+    for ligne in range(len(jetons)):
+        for jeton in range(len(jetons[ligne])):
+            if jetons[ligne][jeton] == 1:
+                fill_rectangle(jeton * 8 + 8,
+                               ligne * 8 + 8,
+                               7, 7, rouge)
+            elif jetons[ligne][jeton] == 2:
+                fill_rectangle(jeton * 8 + 8,
+                               ligne * 8 + 8,
+                               7, 7, vert)
+            else:
+                fill_rectangle(jeton * 8 + 8,
+                               ligne * 8 + 8,
+                               7, 7, noir)
+                                
 def dessiner_ligne(ligne, couleur):
-    for trait in range(len(ligne)):
-        for x in ligne[trait][0]:
-            for y in ligne[trait][1]:
-                draw_image(x, y, couleur)
+    for rect in range(len(ligne)):
+        fill_rectangle(ligne[rect][0],
+                       ligne[rect][1],
+                       ligne[rect][2],
+                       ligne[rect][3],
+                       couleur)
 
 def chercher_ligne(grille, index, horizontal):
     if horizontal:
         return grille.horiz[index]
     else:
         return grille.verti[index]
-    
-def chercher_fleche(fleches, index, haut, droite):
-    if haut:
+       
+def chercher_fleche(fleches, index, position):
+    # L'index de position tourne en sens horloge (haut = 0, droite = 1,...)
+    if position == 0:
         return fleches.haut[index]
-    else:
+    elif position == 2:
         return fleches.bas[index]
-    if droite:
+    elif position == 1:
         return fleches.droite[index]
-    else:
+    elif position == 3:
         return fleches.gauche[index]
-
-def positions_jetons(format):
-    pass
 
 def dessiner_joueur(couleur):
     fill_rectangle(1, 1, 5, 5, couleur)
@@ -192,8 +296,7 @@ def remplir_grille_initiale(dims):
     initialisation_grille(dims, gris)
     dessiner_joueur(rouge)
     fleches = initialisation_fleches(dims, jaune)
-    
-    
+      
 def glisse(format):
     dims = taille_de_la_grille(format)
     set_screen_mode(dims.largeur, dims.hauteur, 6) ### mettre à 4 quand fini 
@@ -230,7 +333,8 @@ def musique_joyeuse():
     son(0.1, 1000)
     son(0.1, 0)
     son(0.4, 1000)
-        
+
+
         
 glisse(4)
     
