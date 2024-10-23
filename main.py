@@ -1,6 +1,6 @@
 # Auteurs: Ann-Sophie Gironne et Oscar Parent
 # Date: 20 octobre 2024
-# Matricules: 20153433 et ?????
+# Matricules: 20153433 et 20273034
 #
 # TODO: Écrire la description du programme
 # TODO: Changer scale à 4 dans glisse() quand fini
@@ -16,6 +16,11 @@ noir = "#000"
 
 from tp1 import *
 
+
+
+# Retourne une struct avec membres largeur et hauteur a partir du format
+# donné 
+
 def taille_de_la_grille(format):
     if format == 4:
         dims = struct(largeur = 47, hauteur = 47)
@@ -24,6 +29,10 @@ def taille_de_la_grille(format):
         dims = struct(largeur = 47 + nouveaux_pixels,
                       hauteur = 47 + nouveaux_pixels)
     return dims
+
+
+# Retourn une matrice de rectangles affichablent à l'écran pour les 
+# flêches du haut
 
 def fleches_haut(x, couleur):    
     # Positions de la première flèche en haut à gauche
@@ -42,7 +51,11 @@ def fleches_haut(x, couleur):
                        fleche[rect][3],
                        couleur)
     return fleche
-                    
+
+
+# Retourn une matrice de rectangles affichablent à l'écran pour les 
+# flêches du bas
+
 def fleches_bas(x, dims, couleur):
     y = dims.hauteur
     # Positions de la première flèche en bas à gauche
@@ -62,6 +75,10 @@ def fleches_bas(x, dims, couleur):
                        couleur)
     return fleche
 
+
+# Retourn une matrice de rectangles affichablent à l'écran pour les 
+# flêches du côté gauche
+
 def fleches_gauche(y, couleur):
     # Positions de la première flèche en haut à gauche
     # Les ajustements en x et y permettent de dessiner les autres flèches
@@ -80,7 +97,11 @@ def fleches_gauche(y, couleur):
                        couleur)
                 
     return fleche
-                    
+
+
+# Retourn une matrice de rectangles affichablent à l'écran pour les 
+# flêches du côté droit
+
 def fleches_droite(y, dims, couleur):
     x = dims.largeur
     # Positions de la première flèche en haut à droite
@@ -100,13 +121,17 @@ def fleches_droite(y, dims, couleur):
                        couleur)
     
     return fleche
-                    
+
+# Retourn une matrice "fleches" composée des flêches des quatres côtés 
+# à affichées  
+
 def initialisation_fleches(dims, couleur):
     nb_fleches = (dims.largeur - 14) // 8
     
     haut = []; bas = []; gauche = []; droite = []
     
     for decalage in range(nb_fleches):
+        # appel aux fonctions réspectives pour chaques flêches
         haut.append(fleches_haut(decalage * 8, couleur))
         bas.append(fleches_bas(decalage * 8, dims, couleur))
         gauche.append(fleches_gauche(decalage * 8, couleur))
@@ -118,6 +143,9 @@ def initialisation_fleches(dims, couleur):
                      gauche = gauche)
     return fleches
  
+# Retourne une matrice de format NxN initialisée avec chaques
+# élements égal à zéro 
+    
 def creer_matrice(format):
     matrice = [None] * format
     
@@ -126,20 +154,18 @@ def creer_matrice(format):
     
     return matrice
     
+# Retourne une matrice des lignes horizontales
+    
 def lignes_horizontales(dims, y, couleur):
     x = dims.largeur
     ligne = ([7, 7 + y, x - 15, 1],     # haut
              [7, 15 + y, x - 15, 1],    # bas
              [7, 7 + y, 1, 9],          # gauche
              [x - 8, 7 + y, 1, 9])      # droite
-    
-    for rect in range(len(ligne)):
-        fill_rectangle(ligne[rect][0],
-                       ligne[rect][1],
-                       ligne[rect][2],
-                       ligne[rect][3],
-                       couleur)
+
     return ligne
+
+# Retourne une matrice des lignes verticales
 
 def lignes_verticales(dims, x, couleur):
     y = dims.hauteur
@@ -148,14 +174,9 @@ def lignes_verticales(dims, x, couleur):
              [7 + x, 7, 1, y - 15],      # gauche
              [15 + x, 7, 1, y - 15])     # droite
     
-    for rect in range(len(ligne)):
-        fill_rectangle(ligne[rect][0],
-                       ligne[rect][1],
-                       ligne[rect][2],
-                       ligne[rect][3],
-                       couleur)
     return ligne
     
+# Retourne une grille initialisée avec des lignes verti et hori
 
 def initialisation_grille(dims, couleur):
     nb_lignes = (dims.largeur - 14) // 8
@@ -165,11 +186,13 @@ def initialisation_grille(dims, couleur):
     for decalage in range(nb_lignes):
         horiz.append(lignes_horizontales(dims, decalage * 8, couleur))
         verti.append(lignes_verticales(dims, decalage * 8, couleur))
-    
+
     grille = struct(horiz = horiz, verti = verti)
     
     return grille
 
+
+        
 def initialisation_jetons(dims):
     taille_matrice = (dims.largeur - 14) // 8
     jetons = creer_matrice(taille_matrice)
@@ -263,6 +286,16 @@ def dessiner_jetons(jetons):
                 fill_rectangle(jeton * 8 + 8,
                                ligne * 8 + 8,
                                7, 7, noir)
+                
+# Prends les dimensions et une grille en suite affiche la grille 
+# à l'écran
+
+def dessiner_grille(dims, grille):
+    nb_lignes = (dims.largeur - 14) // 8
+    
+    for i in range(nb_lignes):
+        dessiner_ligne(grille.horiz[i], gris)
+        dessiner_ligne(grille.verti[i], gris)
                                 
 def dessiner_ligne(ligne, couleur):
     for rect in range(len(ligne)):
@@ -271,12 +304,15 @@ def dessiner_ligne(ligne, couleur):
                        ligne[rect][2],
                        ligne[rect][3],
                        couleur)
+        
+# Retourne la ligne horizontal de la grille située à index
+        
+def hori_chercher_ligne(grille, index): return grille.horiz[index]
 
-def chercher_ligne(grille, index, horizontal):
-    if horizontal:
-        return grille.horiz[index]
-    else:
-        return grille.verti[index]
+# Retourne la ligne vertical de la grille située à index
+
+def vert_chercher_ligne(grille, index): return grille.verti[index]
+
        
 def chercher_fleche(fleches, index, position):
     # L'index de position tourne en sens horloge (haut = 0, droite = 1,...)
@@ -293,7 +329,8 @@ def dessiner_joueur(couleur):
     fill_rectangle(1, 1, 5, 5, couleur)
 
 def remplir_grille_initiale(dims):
-    initialisation_grille(dims, gris)
+    grille =  initialisation_grille(dims, gris)
+    dessiner_grille(dims, grille)  
     dessiner_joueur(rouge)
     fleches = initialisation_fleches(dims, jaune)
       
