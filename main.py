@@ -18,8 +18,7 @@ from tp1 import *
 
 
 
-# Retourne une struct avec membres largeur et hauteur a partir du format
-# donné 
+# Retourne une struct avec membres largeur et hauteur à partir du format donné
 
 def taille_de_la_grille(format):
     if format == 4:
@@ -31,8 +30,8 @@ def taille_de_la_grille(format):
     return dims
 
 
-# Retourn une matrice de rectangles affichablent à l'écran pour les 
-# flêches du haut
+# Retourne une matrice de rectangles affichables à l'écran pour les 
+# flèches du haut
 
 def fleches_haut(x, couleur):    
     # Positions de la première flèche en haut à gauche
@@ -53,8 +52,8 @@ def fleches_haut(x, couleur):
     return fleche
 
 
-# Retourn une matrice de rectangles affichablent à l'écran pour les 
-# flêches du bas
+# Retourne une matrice de rectangles affichables à l'écran pour les 
+# flèches du bas
 
 def fleches_bas(x, dims, couleur):
     y = dims.hauteur
@@ -76,8 +75,8 @@ def fleches_bas(x, dims, couleur):
     return fleche
 
 
-# Retourn une matrice de rectangles affichablent à l'écran pour les 
-# flêches du côté gauche
+# Retourne une matrice de rectangles affichables à l'écran pour les 
+# flèches du côté gauche
 
 def fleches_gauche(y, couleur):
     # Positions de la première flèche en haut à gauche
@@ -99,8 +98,8 @@ def fleches_gauche(y, couleur):
     return fleche
 
 
-# Retourn une matrice de rectangles affichablent à l'écran pour les 
-# flêches du côté droit
+# Retourne une matrice de rectangles affichables à l'écran pour les 
+# flèches du côté droit
 
 def fleches_droite(y, dims, couleur):
     x = dims.largeur
@@ -122,8 +121,9 @@ def fleches_droite(y, dims, couleur):
     
     return fleche
 
-# Retourn une matrice "fleches" composée des flêches des quatres côtés 
-# à affichées  
+
+# Retourne une matrice "fleches" composée des positions des flèches
+# des quatres côtés à afficher 
 
 def initialisation_fleches(dims, couleur):
     nb_fleches = (dims.largeur - 14) // 8
@@ -131,7 +131,7 @@ def initialisation_fleches(dims, couleur):
     haut = []; bas = []; gauche = []; droite = []
     
     for decalage in range(nb_fleches):
-        # appel aux fonctions réspectives pour chaques flêches
+        # Appel aux fonctions respectives pour chaque flèche
         haut.append(fleches_haut(decalage * 8, couleur))
         bas.append(fleches_bas(decalage * 8, dims, couleur))
         gauche.append(fleches_gauche(decalage * 8, couleur))
@@ -143,9 +143,10 @@ def initialisation_fleches(dims, couleur):
                      gauche = gauche)
     return fleches
  
-# Retourne une matrice de format NxN initialisée avec chaques
-# élements égal à zéro 
     
+# Retourne une matrice de format NxN initialisée avec chaque élement
+# égal à zéro    
+
 def creer_matrice(format):
     matrice = [None] * format
     
@@ -153,6 +154,7 @@ def creer_matrice(format):
         matrice[i] = [0] * format
     
     return matrice
+  
     
 # Retourne une matrice des lignes horizontales
     
@@ -165,6 +167,7 @@ def lignes_horizontales(dims, y, couleur):
 
     return ligne
 
+
 # Retourne une matrice des lignes verticales
 
 def lignes_verticales(dims, x, couleur):
@@ -175,8 +178,10 @@ def lignes_verticales(dims, x, couleur):
              [15 + x, 7, 1, y - 15])     # droite
     
     return ligne
+  
     
-# Retourne une grille initialisée avec des lignes verti et hori
+# Retourne une grille initialisée avec les positions des lignes verticales
+# et horizontales
 
 def initialisation_grille(dims, couleur):
     nb_lignes = (dims.largeur - 14) // 8
@@ -192,11 +197,17 @@ def initialisation_grille(dims, couleur):
     return grille
 
 
-        
+# Initialisation de la matrice permettant de garder en mémoire la position
+# des jetons
+
 def initialisation_jetons(dims):
     taille_matrice = (dims.largeur - 14) // 8
     jetons = creer_matrice(taille_matrice)
     return jetons
+
+
+# Permet d'ajouter un jeton à différentes positions en fonction du joueur
+# et décale la matrice des positions des jetons en conséquence
 
 def ajouter_jeton(jetons, index, position, joueur):
     # La position tourne en sens horloge (haut = 0, droite = 1, ...)
@@ -210,8 +221,10 @@ def ajouter_jeton(jetons, index, position, joueur):
         decalage_droite(jetons, index, joueur, True)
     dessiner_jetons(jetons)
     
+    
+# Décale une rangée de la matrice des jetons vers la gauche
+    
 def decalage_gauche(jetons, index, joueur, matrice):
-    # Ajoute un élément à droite pour décaler la ligne vers la gauche
     if matrice:
         # Décale une ligne dans la matrice complète
         nouvelle_ligne = jetons[index][1:] + [joueur]
@@ -222,8 +235,10 @@ def decalage_gauche(jetons, index, joueur, matrice):
         ligne_decalee = jetons[1:] + [joueur]
         return ligne_decalee
 
+    
+# Décale une rangée de la matrice des jetons vers la droite
+    
 def decalage_droite(jetons, index, joueur, matrice):
-    # Ajoute un élément à gauche pour décaler la ligne vers la droite
     if matrice:
         # Décale une ligne dans la matrice complète
         nouvelle_ligne = [joueur] + jetons[index][:-1]
@@ -234,6 +249,9 @@ def decalage_droite(jetons, index, joueur, matrice):
         ligne_decalee = [joueur] + jetons[:-1]
         return ligne_decalee
 
+    
+# Décale une colonne de la matrice des jetons vers le haut
+    
 def decalage_haut(jetons, index, joueur):
     colonne_originale = []
     
@@ -248,7 +266,9 @@ def decalage_haut(jetons, index, joueur):
     for ligne in range(len(jetons)):
         jetons[ligne][index] = nouvelle_colonne[ligne]
         
-    
+        
+# Décale une colonne de la matrice des jetons vers le bas
+
 def decalage_bas(jetons, index, joueur):
     colonne_originale = []
     
@@ -263,6 +283,9 @@ def decalage_bas(jetons, index, joueur):
     for ligne in range(len(jetons)):
         jetons[ligne][index] = nouvelle_colonne[ligne]
 
+        
+# Dessine une flèche donnée sur la grille
+        
 def dessiner_fleche(fleche, couleur):
     for rect in range(len(fleche)):
         fill_rectangle(fleche[rect][0],
@@ -271,6 +294,9 @@ def dessiner_fleche(fleche, couleur):
                        fleche[rect][3],
                        couleur)
 
+        
+# Prend la matrice des jetons et affiche les couleurs des jetons à l'écran
+        
 def dessiner_jetons(jetons):
     for ligne in range(len(jetons)):
         for jeton in range(len(jetons[ligne])):
@@ -286,8 +312,9 @@ def dessiner_jetons(jetons):
                 fill_rectangle(jeton * 8 + 8,
                                ligne * 8 + 8,
                                7, 7, noir)
-                
-# Prends les dimensions et une grille en suite affiche la grille 
+    
+    
+# Prend les dimensions et une grille en entrée, puis affiche la grille 
 # à l'écran
 
 def dessiner_grille(dims, grille):
@@ -296,7 +323,10 @@ def dessiner_grille(dims, grille):
     for i in range(nb_lignes):
         dessiner_ligne(grille.horiz[i], gris)
         dessiner_ligne(grille.verti[i], gris)
-                                
+        
+        
+# Prend les positions d'une ligne (rangée/colonne) donnée et affiche à l'écran
+
 def dessiner_ligne(ligne, couleur):
     for rect in range(len(ligne)):
         fill_rectangle(ligne[rect][0],
@@ -304,16 +334,19 @@ def dessiner_ligne(ligne, couleur):
                        ligne[rect][2],
                        ligne[rect][3],
                        couleur)
+
         
-# Retourne la ligne horizontal de la grille située à index
+# Retourne la ligne horizontale de la grille située à un index donné
         
 def hori_chercher_ligne(grille, index): return grille.horiz[index]
 
-# Retourne la ligne vertical de la grille située à index
+
+# Retourne la ligne verticale de la grille située à un index donné
 
 def vert_chercher_ligne(grille, index): return grille.verti[index]
 
-       
+## Retourne la position d'une flèche à un index donné
+
 def chercher_fleche(fleches, index, position):
     # L'index de position tourne en sens horloge (haut = 0, droite = 1,...)
     if position == 0:
@@ -325,29 +358,44 @@ def chercher_fleche(fleches, index, position):
     elif position == 3:
         return fleches.gauche[index]
 
+## Permet de dessiner le carré du joueur dans le coin gauche
+    
 def dessiner_joueur(couleur):
     fill_rectangle(1, 1, 5, 5, couleur)
+
+## Initialise la grille avec tous les aspects visuels
 
 def remplir_grille_initiale(dims):
     grille =  initialisation_grille(dims, gris)
     dessiner_grille(dims, grille)  
     dessiner_joueur(rouge)
     fleches = initialisation_fleches(dims, jaune)
-      
+    
+# Fonction principale
+    
 def glisse(format):
     dims = taille_de_la_grille(format)
     set_screen_mode(dims.largeur, dims.hauteur, 6) ### mettre à 4 quand fini 
     remplir_grille_initiale(dims)
+
+# Fonction générale permettant de faire jouer un son
     
 def son(duree, frequence):
     beep(duree, frequence)
     
+# Encode le son pour quand on survole la flèche    
+    
 def survol_fleche():
     son(0.025, 1500)
 
+# Encode le son pour quand un coup est joué    
+    
 def son_coup():
     son(0.15, 2000)
 
+    
+## Encode les sons pour la musique triste    
+    
 def musique_triste():
     son(0.1, 1000)
     son(0.1, 900)
@@ -356,6 +404,9 @@ def musique_triste():
     son(0.1, 600)
     son(0.1, 500)
     son(0.75, 100)
+    
+    
+## Encode les sons pour la musique joyeuse
     
 def musique_joyeuse():
     son(0.1, 500)
