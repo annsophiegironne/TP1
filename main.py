@@ -287,12 +287,14 @@ def decalage_bas(jetons, index, joueur):
 # Dessine une flèche donnée sur la grille
         
 def dessiner_fleche(fleche, couleur):
-    for rect in range(len(fleche)):
-        fill_rectangle(fleche[rect][0],
-                       fleche[rect][1],
-                       fleche[rect][2],
-                       fleche[rect][3],
-                       couleur)
+    if fleche is not None:
+        for rect in range(len(fleche)):
+            fill_rectangle(fleche[rect][0],
+                           fleche[rect][1],
+                           fleche[rect][2],
+                           fleche[rect][3],
+                           couleur)
+    
       
         
 def identifier_fleche(dims, fleches, grille, souris):
@@ -322,38 +324,6 @@ def identifier_fleche(dims, fleches, grille, souris):
 # Vérifie la position de la souris sur la grille en temps réel et
 # colore les flèches/lignes survolées en blanc
 
-def surveiller_survol(dims, fleches, grille):
-    derniere_fleche = None  # Dernière flèche survolée
-    derniere_ligne = None   # Ligne associée à la flèche survolée
-    
-    while True:
-        # Obtenir la position actuelle de la souris
-        souris = get_mouse()
-        
-        # Identifier la flèche/ligne survolée
-        fleche_et_ligne = identifier_fleche(dims, fleches, grille, souris)
-        fleche_survolee = fleche_et_ligne[0]
-        ligne_survolee = fleche_et_ligne[1]
-
-        # Si la flèche/ligne survolée a changé
-        if fleche_survolee != derniere_fleche:
-            if derniere_fleche is not None and derniere_fleche != -1:
-                if derniere_ligne is not None and derniere_ligne != -1:
-                    
-                    # Réinitialiser la couleur de la dernière flèche/ligne 
-                    # survolée
-                    dessiner_fleche(derniere_fleche, jaune)
-                    dessiner_ligne(derniere_ligne, gris)
-            
-            # Si une nouvelle flèche/ligne est survolée
-            if fleche_survolee != -1 and ligne_survolee != -1:
-                # Redessiner la nouvelle flèche/ligne survolée en blanc
-                dessiner_fleche(fleche_survolee, blanc)
-                dessiner_ligne(ligne_survolee, blanc)
-            
-            # Mettre à jour la dernière flèche survolée
-            derniere_fleche = fleche_survolee
-            derniere_ligne = ligne_survolee
 
             
 # Prend la matrice des jetons et affiche les couleurs des jetons à l'écran
@@ -374,6 +344,50 @@ def dessiner_jetons(jetons):
                                (ligne + 1) * 8 + 1,
                                5, 5, noir)
     
+    
+    
+# Fonction résponsable de changer la couleur des lignes/fleches survolées
+# et de jouer un son quand survolées par la souris
+# utilise ses états précédants pour se "rapeller" des ancients états        
+def surveiller_survol(dims, fleches, grille, souris, beep, etat_precedent):
+    # Surveille le survol, met à jour si nécessaire
+    derniere_fleche, derniere_ligne = etat_precedent
+
+    # Identifie fleche/ligne survolée
+    fleche_surv, ligne_surv = identifier_fleche(dims, fleches, grille, souris)
+
+    # Si flèche/ligne survolée change
+    if fleche_surv != derniere_fleche or ligne_surv != derniere_ligne:
+        
+        # Permettre son de jouer
+        beep = True
+        
+        # Re-init la derniere fleche/ligne survolée
+        if derniere_fleche != -1:
+            dessiner_fleche(derniere_fleche, jaune)
+           
+        if derniere_ligne != -1:
+            dessiner_ligne(derniere_ligne, gris)
+            
+
+        # Dessiner nouvelle fleche 
+        if fleche_surv != -1:
+            dessiner_fleche(fleche_surv, blanc)
+            
+        if ligne_surv != -1:
+            dessiner_ligne(ligne_surv, blanc)
+     
+    # Verifie que le son a le droit de jouer et ensuite l'interdit de jouer
+    # jusqu'à temps qu'une nouvelle fleche se fasse survolée
+    if beep is True:
+        son_survol_fleche()
+        sleep(0.1)
+        beep = False
+    
+    
+
+    # Return l'état pour prochaine itération
+    return (fleche_surv, ligne_surv), beep
     
 # Prend les dimensions et une grille en entrée, puis affiche la grille 
 # à l'écran
@@ -456,6 +470,67 @@ def glisse(format):
     dims = taille_de_la_grille(format)
     set_screen_mode(dims.largeur, dims.hauteur, 6) ### mettre à 4 quand fini 
     remplir_grille_initiale(dims)
+    fleches = initialisation_fleches(dims, noir)
+    grille = initialisation_grille(dims)
+    
+    #unfinished
+def jouer_tour(joueur, jetons, souris, dims):
+    a = 1
+    
+    # unfinished
+def mainGameLoop(format):   #TODO abstract away the inits to an init function
+
+    #       INIT
+    print("init")
+    dims = taille_de_la_grille(format)
+    set_screen_mode(dims.largeur, dims.hauteur, 5)
+    jetons = initialisation_jetons(dims)
+    fleches = initialisation_fleches(dims, jaune)
+    grille = initialisation_grille(dims)
+
+
+    remplir_grille_initiale(dims)
+
+    partie_en_cours = True
+    joueur = 1 # Tour du joueur (1 ou 2)
+    etat_prec = (-1, -1)
+    beep = False
+    #ajouter_jeton(jetons, index, position, joueur)
+    
+    test = 0
+    #       BOUCLE DE JEU PRINCIPAlE
+    while partie_en_cours:
+        
+        sleep(0.2)
+        a = retourner_fleche(fleches, 1, 0)
+        print(a[1])
+            
+    #       INPUTS
+        souris = get_mouse()
+        
+        
+        ajouter_jeton(jetons, 1, 3, joueur)
+            
+        
+
+    
+    #       UPDATES
+        etat_prec, beep  = surveiller_survol(dims, 
+                                      fleches, 
+                                      grille, 
+                                      souris,
+                                      beep,
+                                      etat_prec)
+        
+    
+        dessiner_jetons(jetons)                            
+
+        #TODO add player turn function
+        #TODO add check victory function
+
+
+
+    
 
 # Fonction générale permettant de faire jouer un son
     
@@ -466,6 +541,7 @@ def son(duree, frequence):
     
 def son_survol_fleche():
     son(0.025, 1500)
+    
 
 # Encode le son pour quand un coup est joué    
     
@@ -503,7 +579,9 @@ def musique_joyeuse():
 
 
         
-glisse(4)
+#glisse(4)
+
+mainGameLoop(6)
 
 # TODO: Supprimer quand on aura fini
 dims = taille_de_la_grille(4)
