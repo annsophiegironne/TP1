@@ -158,7 +158,7 @@ def creer_matrice(format):
     
 # Retourne une matrice des lignes horizontales
     
-def lignes_horizontales(dims, y, couleur):
+def lignes_horizontales(dims, y):
     x = dims.largeur
     ligne = ([7, 7 + y, x - 15, 1],     # haut
              [7, 15 + y, x - 15, 1],    # bas
@@ -170,7 +170,7 @@ def lignes_horizontales(dims, y, couleur):
 
 # Retourne une matrice des lignes verticales
 
-def lignes_verticales(dims, x, couleur):
+def lignes_verticales(dims, x):
     y = dims.hauteur
     ligne = ([7 + x, 7, 9, 1],           # haut
              [7 + x, y - 8, 9, 1],       # bas
@@ -183,14 +183,14 @@ def lignes_verticales(dims, x, couleur):
 # Retourne une grille initialisée avec les positions des lignes verticales
 # et horizontales
 
-def initialisation_grille(dims, couleur):
+def initialisation_grille(dims):
     nb_lignes = (dims.largeur - 14) // 8
     
     horiz = []; verti = []
     
     for decalage in range(nb_lignes):
-        horiz.append(lignes_horizontales(dims, decalage * 8, couleur))
-        verti.append(lignes_verticales(dims, decalage * 8, couleur))
+        horiz.append(lignes_horizontales(dims, decalage * 8))
+        verti.append(lignes_verticales(dims, decalage * 8))
 
     grille = struct(horiz = horiz, verti = verti)
     
@@ -293,36 +293,97 @@ def dessiner_fleche(fleche, couleur):
                        fleche[rect][2],
                        fleche[rect][3],
                        couleur)
-
+      
         
+def identifier_fleche(dims, fleches, grille, souris):
+    x = (souris.x + 1) // 8
+    y = (souris.y + 1) // 8
+    
+    format = (dims.largeur // 8) - 1
+    
+    fleche = None
+    ligne = None
+    
+    if x == 0 and 0 < y <= format:          # Flèche à gauche
+        fleche = fleches.gauche[y - 1]
+        ligne = grille.horiz[y - 1]
+    if x == format + 1 and 0 < y <= format: # Flèche à droite
+        fleche = fleches.droite[y - 1]
+        ligne = grille.horiz[y - 1]
+    if y == 0 and 0 < x <= format:          # Flèche en haut
+        fleche = fleches.haut[x - 1]
+        ligne = grille.verti[x - 1]
+    if y == format + 1 and 0 < x <= format: # Flèche en bas
+        fleche = fleches.bas[x - 1]
+        ligne = grille.verti[x - 1]
+        
+    return fleche, ligne if fleche is not None else -1
+
+# Vérifie la position de la souris sur la grille en temps réel et
+# colore les flèches/lignes survolées en blanc
+
+def surveiller_survol(dims, fleches, grille):
+    derniere_fleche = None  # Dernière flèche survolée
+    derniere_ligne = None   # Ligne associée à la flèche survolée
+    
+    while True:
+        # Obtenir la position actuelle de la souris
+        souris = get_mouse()
+        
+        # Identifier la flèche/ligne survolée
+        fleche_et_ligne = identifier_fleche(dims, fleches, grille, souris)
+        fleche_survolee = fleche_et_ligne[0]
+        ligne_survolee = fleche_et_ligne[1]
+
+        # Si la flèche/ligne survolée a changé
+        if fleche_survolee != derniere_fleche:
+            if derniere_fleche is not None and derniere_fleche != -1:
+                if derniere_ligne is not None and derniere_ligne != -1:
+                    
+                    # Réinitialiser la couleur de la dernière flèche/ligne 
+                    # survolée
+                    dessiner_fleche(derniere_fleche, jaune)
+                    dessiner_ligne(derniere_ligne, gris)
+            
+            # Si une nouvelle flèche/ligne est survolée
+            if fleche_survolee != -1 and ligne_survolee != -1:
+                # Redessiner la nouvelle flèche/ligne survolée en blanc
+                dessiner_fleche(fleche_survolee, blanc)
+                dessiner_ligne(ligne_survolee, blanc)
+            
+            # Mettre à jour la dernière flèche survolée
+            derniere_fleche = fleche_survolee
+            derniere_ligne = ligne_survolee
+
+            
 # Prend la matrice des jetons et affiche les couleurs des jetons à l'écran
         
 def dessiner_jetons(jetons):
     for ligne in range(len(jetons)):
         for jeton in range(len(jetons[ligne])):
             if jetons[ligne][jeton] == 1:
-                fill_rectangle(jeton * 8 + 8,
-                               ligne * 8 + 8,
-                               7, 7, rouge)
+                fill_rectangle((jeton + 1) * 8 + 1,
+                               (ligne + 1) * 8 + 1,
+                               5, 5, rouge)
             elif jetons[ligne][jeton] == 2:
-                fill_rectangle(jeton * 8 + 8,
-                               ligne * 8 + 8,
-                               7, 7, vert)
+                fill_rectangle((jeton + 1) * 8 + 1,
+                               (ligne + 1) * 8 + 1,
+                               5, 5, vert)
             else:
-                fill_rectangle(jeton * 8 + 8,
-                               ligne * 8 + 8,
-                               7, 7, noir)
+                fill_rectangle((jeton + 1) * 8 + 1,
+                               (ligne + 1) * 8 + 1,
+                               5, 5, noir)
     
     
 # Prend les dimensions et une grille en entrée, puis affiche la grille 
 # à l'écran
 
-def dessiner_grille(dims, grille):
+def dessiner_grille(dims, grille, couleur):
     nb_lignes = (dims.largeur - 14) // 8
     
     for i in range(nb_lignes):
-        dessiner_ligne(grille.horiz[i], gris)
-        dessiner_ligne(grille.verti[i], gris)
+        dessiner_ligne(grille.horiz[i], couleur)
+        dessiner_ligne(grille.verti[i], couleur)
         
         
 # Prend les positions d'une ligne (rangée/colonne) donnée et affiche à l'écran
@@ -338,16 +399,16 @@ def dessiner_ligne(ligne, couleur):
         
 # Retourne la ligne horizontale de la grille située à un index donné
         
-def hori_chercher_ligne(grille, index): return grille.horiz[index]
+def horiz_chercher_ligne(grille, index): return grille.horiz[index]
 
 
 # Retourne la ligne verticale de la grille située à un index donné
 
-def vert_chercher_ligne(grille, index): return grille.verti[index]
+def verti_chercher_ligne(grille, index): return grille.verti[index]
 
 ## Retourne la position d'une flèche à un index donné
-
-def chercher_fleche(fleches, index, position):
+## POTENTIELLEMENT INUTILE !!!
+def retourner_fleche(fleches, index, position):
     # L'index de position tourne en sens horloge (haut = 0, droite = 1,...)
     if position == 0:
         return fleches.haut[index]
@@ -366,12 +427,30 @@ def dessiner_joueur(couleur):
 ## Initialise la grille avec tous les aspects visuels
 
 def remplir_grille_initiale(dims):
-    grille =  initialisation_grille(dims, gris)
-    dessiner_grille(dims, grille)  
+    grille =  initialisation_grille(dims)
+    dessiner_grille(dims, grille, gris)  
     dessiner_joueur(rouge)
     fleches = initialisation_fleches(dims, jaune)
-    
-# Fonction principale
+
+# Attend le prochain clic et retourne la position de la souris 
+# au moment du clic
+
+def attendre_clic():
+    # Quand le bouton est pressé, attendre qu'il ne le soit plus
+    while True:
+        souris = get_mouse()
+        if souris.button == 0: break
+        sleep(0.01) # Fluidité de l'interface
+     
+    # Quand le bouton n'est pas pressé, attendre qu'il le soit
+    while True:
+        souris = get_mouse()
+        if souris.button != 0: break
+        sleep(0.01) # Fluidité de l'interface
+        
+    return souris
+   
+# Fonction principale du jeu de glisse
     
 def glisse(format):
     dims = taille_de_la_grille(format)
@@ -385,7 +464,7 @@ def son(duree, frequence):
     
 # Encode le son pour quand on survole la flèche    
     
-def survol_fleche():
+def son_survol_fleche():
     son(0.025, 1500)
 
 # Encode le son pour quand un coup est joué    
@@ -425,7 +504,27 @@ def musique_joyeuse():
 
         
 glisse(4)
-    
+
+# TODO: Supprimer quand on aura fini
+dims = taille_de_la_grille(4)
+jetons = initialisation_jetons(dims)
+fleches = initialisation_fleches(dims, jaune)
+grille = initialisation_grille(dims)
+
+
+##### Permet juste de tester le clic pour l'instant
+#while True:
+#    surveiller_survol(dims, fleches, grille)
+    #souris = attendre_clic()
+    #fleche = identifier_fleche(dims, fleches, souris)
+    #if fleche != -1:
+    #    son_coup() # Génère un son quand un coup est joué
+    #    dessiner_fleche(fleche, blanc)
+        
+        
+
+
+
 # coup = struct(ligne = ligne, fin = booléen)
 # jouer_coup(grille, coup, joueur)
 # joueur1 = rouge, joueur2 = vert
