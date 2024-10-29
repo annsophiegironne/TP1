@@ -222,6 +222,43 @@ def ajouter_jeton(jetons, index, position, joueur):
     dessiner_jetons(jetons)
     
     
+"""
+ OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR
+   
+""" 
+def remplie_horiz(jetons, index, format):
+    compteur = 0
+    
+    for jet in jetons[index]:
+        if jet == 1 or jet == 2:
+            compteur += 1
+            
+    if compteur == format:
+        return True 
+    else: 
+        return False
+        
+    
+def remplie_verti(jetons, index, format):
+    colonne_originale = []
+    compteur = 0
+    # Extraction des valeurs originales des jetons
+    for ligne in jetons:
+        colonne_originale.append(ligne[index])
+    
+    for jet in colonne_originale:
+        if jet == 1 or jet == 2:
+            compteur += 1
+    
+    if compteur == format:
+        return True
+    else:
+        return False
+    
+    
+    
+    
+    
 # Décale une rangée de la matrice des jetons vers la gauche
     
 def decalage_gauche(jetons, index, joueur, matrice):
@@ -472,7 +509,10 @@ def glisse(format):
     fleches = initialisation_fleches(dims, noir)
     grille = initialisation_grille(dims)
     
-
+    #unfinished
+def jouer_tour(joueur, jetons, souris, dims):
+    a = 1
+    
     # unfinished
 def mainGameLoop(format):   #TODO abstract away the inits to an init function
 
@@ -508,10 +548,11 @@ def mainGameLoop(format):   #TODO abstract away the inits to an init function
                                       etat_prec)
         selection = etat_prec[0]
        
-        jouer_tour(selection, jetons, dims, joueur, souris)
+        jouer_tour(selection, jetons, dims, 2, souris)
     
         if souris.button:
             print(jetons)
+            print(remplie_verti(jetons, 4 ,format))
        # dessiner_jetons(jetons)                            
 
         #TODO add player turn function
@@ -600,7 +641,7 @@ def musique_joyeuse():
         
 #glisse(4)
 
-mainGameLoop(6)
+mainGameLoop(5)
 
 # TODO: Supprimer quand on aura fini
 dims = taille_de_la_grille(4)
