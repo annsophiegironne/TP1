@@ -295,8 +295,7 @@ def dessiner_fleche(fleche, couleur):
                            fleche[rect][3],
                            couleur)
     
-      
-        
+#TODO
 def identifier_fleche(dims, fleches, grille, souris):
     x = (souris.x + 1) // 8
     y = (souris.y + 1) // 8
@@ -473,10 +472,7 @@ def glisse(format):
     fleches = initialisation_fleches(dims, noir)
     grille = initialisation_grille(dims)
     
-    #unfinished
-def jouer_tour(joueur, jetons, souris, dims):
-    a = 1
-    
+
     # unfinished
 def mainGameLoop(format):   #TODO abstract away the inits to an init function
 
@@ -495,24 +491,13 @@ def mainGameLoop(format):   #TODO abstract away the inits to an init function
     joueur = 1 # Tour du joueur (1 ou 2)
     etat_prec = (-1, -1)
     beep = False
-    #ajouter_jeton(jetons, index, position, joueur)
     
-    test = 0
+    
     #       BOUCLE DE JEU PRINCIPAlE
-    while partie_en_cours:
-        
+    while partie_en_cours:   
         sleep(0.2)
-        a = retourner_fleche(fleches, 1, 0)
-        print(a[1])
-            
     #       INPUTS
         souris = get_mouse()
-        
-        
-        ajouter_jeton(jetons, 1, 3, joueur)
-            
-        
-
     
     #       UPDATES
         etat_prec, beep  = surveiller_survol(dims, 
@@ -521,15 +506,49 @@ def mainGameLoop(format):   #TODO abstract away the inits to an init function
                                       souris,
                                       beep,
                                       etat_prec)
-        
+        selection = etat_prec[0]
+       
+        jouer_tour(selection, jetons, dims, joueur, souris)
     
-        dessiner_jetons(jetons)                            
+        if souris.button:
+            print(jetons)
+       # dessiner_jetons(jetons)                            
 
         #TODO add player turn function
         #TODO add check victory function
 
 
+def jouer_tour(ligne, jetons, dims, joueur, souris):
+    
+    position = obtenir_cote(dims, souris)
+    
+    if souris.button:
+        if ligne is not None and ligne[0] is not None:
+            
+            if position == 1 or position == 3:
+                index = (ligne[0][1] // 8) - 1
+                ajouter_jeton(jetons, index, position, joueur )
+                son_coup()
+            if position == 0 or position == 2:
+                index = (ligne[0][0] // 8) - 1
+                ajouter_jeton(jetons, index, position, joueur)
+                son_coup()
+    
+def obtenir_cote(dims, souris):
+    x = souris.x
+    y = souris.y
+    
+    
+    if x <= 8 and 8 <= y <= dims.hauteur - 8:
+        return 3
+    if 8 <= x <= dims.largeur and y >= dims.hauteur - 8:
+        return 2
+    if x >= dims.largeur - 8 and 8 <= y <= dims.hauteur - 8:
+        return 1
+    if 8 <= x <= dims.largeur and y <= 8:
+        return 0
 
+    
     
 
 # Fonction générale permettant de faire jouer un son
