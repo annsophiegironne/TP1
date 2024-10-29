@@ -209,16 +209,37 @@ def initialisation_jetons(dims):
 # Permet d'ajouter un jeton à différentes positions en fonction du joueur
 # et décale la matrice des positions des jetons en conséquence
 
-def ajouter_jeton(jetons, index, position, joueur):
+def ajouter_jeton(jetons, index, position, joueur, format):
     # La position tourne en sens horloge (haut = 0, droite = 1, ...)
     if position == 0:
-        decalage_bas(jetons, index, joueur)
+        
+        if remplie_verti(jetons, index, format):
+            decalage_bas(jetons, index, joueur)
+        else:
+            ajout_verti(jetons, index, joueur, 0)
+        
+        
     elif position == 1:
-        decalage_gauche(jetons, index, joueur, True)
+        
+        if remplie_horiz(jetons, index, format):    
+            decalage_gauche(jetons, index, joueur, True)
+        else:
+            ajout_horiz(jetons, index, joueur, 1)
+        
     elif position == 2:
-        decalage_haut(jetons, index, joueur)
+        
+        if remplie_verti(jetons, index, format):
+            decalage_haut(jetons, index, joueur)
+        else:
+            ajout_verti(jetons, index, joueur, 2)
+        
     elif position == 3:
-        decalage_droite(jetons, index, joueur, True)
+        
+        if remplie_horiz(jetons, index, format):
+            decalage_droite(jetons, index, joueur, True)
+        else:
+            ajout_horiz(jetons, index, joueur, 3)
+        
     dessiner_jetons(jetons)
     
     
@@ -255,9 +276,64 @@ def remplie_verti(jetons, index, format):
     else:
         return False
     
+def ajout_verti(jetons, index, joueur, cote):
+    colonne = []
     
+    for ligne in jetons:
+        colonne.append(ligne[index])
+        
+    if cote == 2:
+        temp = len(ligne) - 1
+        
+        # check from right to left until a 0 is found, if so replace it 
+        
+        while colonne[temp] != (1 or 2):
+            if colonne[temp] == 0:
+                colonne[temp] = joueur
+                for ligne in range(len(jetons)):
+                    jetons[ligne][index] = colonne[ligne]
+                break
+            temp -= 1
+       
+    if cote == 0:
+        temp = 0
+        
+        # check from left to right until a 0 is found, if so replace it
+        
+        while colonne[temp] != (1 or 2):
+            if colonne[temp] == 0:
+                colonne[temp] = joueur
+                for ligne in range(len(jetons)):
+                    jetons[ligne][index] = colonne[ligne]
+                break
+            temp += 1
     
+def ajout_horiz(jetons, index, joueur, cote):
+    ligne = jetons[index]
     
+    if cote == 1:
+        temp = len(ligne) - 1
+        
+        # check from right to left until a 0 is found, if so replace it 
+        
+        while ligne[temp] != (1 or 2):
+            if ligne[temp] == 0:
+                ligne[temp] = joueur
+                break
+            temp -= 1
+       
+    if cote == 3:
+        temp = 0
+        
+        # check from left to right until a 0 is found, if so replace it
+        
+        while ligne[temp] != (1 or 2):
+            if ligne[temp] == 0:
+                ligne[temp] = joueur
+                break
+            temp += 1
+        
+ 
     
 # Décale une rangée de la matrice des jetons vers la gauche
     
@@ -548,7 +624,7 @@ def mainGameLoop(format):   #TODO abstract away the inits to an init function
                                       etat_prec)
         selection = etat_prec[0]
        
-        jouer_tour(selection, jetons, dims, 2, souris)
+        jouer_tour(selection, jetons, dims, 2, souris, format)
     
         if souris.button:
             print(jetons)
@@ -559,7 +635,7 @@ def mainGameLoop(format):   #TODO abstract away the inits to an init function
         #TODO add check victory function
 
 
-def jouer_tour(ligne, jetons, dims, joueur, souris):
+def jouer_tour(ligne, jetons, dims, joueur, souris, format):
     
     position = obtenir_cote(dims, souris)
     
@@ -568,11 +644,11 @@ def jouer_tour(ligne, jetons, dims, joueur, souris):
             
             if position == 1 or position == 3:
                 index = (ligne[0][1] // 8) - 1
-                ajouter_jeton(jetons, index, position, joueur )
+                ajouter_jeton(jetons, index, position, joueur, format )
                 son_coup()
             if position == 0 or position == 2:
                 index = (ligne[0][0] // 8) - 1
-                ajouter_jeton(jetons, index, position, joueur)
+                ajouter_jeton(jetons, index, position, joueur, format)
                 son_coup()
     
 def obtenir_cote(dims, souris):
