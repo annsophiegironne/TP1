@@ -265,10 +265,11 @@ def ajouter_jeton(jetons, index, position, joueur):
     decalage = [decalage_bas, decalage_gauche, decalage_haut, decalage_droite]
     ajout = [ajout_verti, ajout_horiz] * 2
    
+    matrice = (position in [1,3])
     # La position tourne en sens horloge (haut = 0, droite = 1, ...)
     # Vérifie si la ligne est remplie et si oui, décaler les valeurs
     if remplie[position](jetons, index):
-        decalage[position](jetons, index, joueur)
+        decalage[position](jetons, index, joueur, matrice)
     else:
         ajout[position](jetons, index, joueur, position)
            
@@ -458,7 +459,9 @@ def decalage_droite(jetons, index, joueur, matrice):
 
    
 # Décale une colonne de la matrice des jetons vers le haut
-def decalage_haut(jetons, index, joueur):
+# Le paramètre matrice n'est pas utilisé, il sert à uniformiser l'utilisation
+# des fonctions de décalage
+def decalage_haut(jetons, index, joueur, matrice):
     colonne_originale = []
   
     # Extraction des valeurs originales des jetons
@@ -474,7 +477,9 @@ def decalage_haut(jetons, index, joueur):
       
       
 # Décale une colonne de la matrice des jetons vers le bas
-def decalage_bas(jetons, index, joueur):
+# Le paramètre matrice n'est pas utilisé, il sert à uniformiser l'utilisation
+# des fonctions de décalage
+def decalage_bas(jetons, index, joueur, matrice):
     colonne_originale = []
   
     # Extraction des valeurs originales des jetons
