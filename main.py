@@ -16,22 +16,24 @@ noir = "#000"
 
 from tp1 import *
 
+
 # Inverse la matrice en mettant la colonne 1 à la position de la rangée 1
 # et ainsi de suite. Permet de vérifier les colonnes comme des rangées
-
 def inverser_matrice(matrice):
     format = len(matrice)
     colonne = []
     matrice_inverse = []
-   
+  
     for x in range(format):
         for y in range(format):
             colonne.append(matrice[y][x])
         matrice_inverse.append(colonne)
         colonne = []
-   
+  
     return matrice_inverse
 
+
+# Fait une copie d'une matrice qui est par la suite modifiée
 def copie_matrice(matrice):
     copie = []
     for ligne in matrice:
@@ -41,28 +43,82 @@ def copie_matrice(matrice):
         copie.append(nouvelle_ligne)
     return copie
 
-def verifier_configuration(memoire_jetons, jetons):
+
+# Cette fonction parcourt les configurations précédentes pour s'assurer que
+# le joueur ne répète pas les mêmes mouvements. Elle vérifie que le coup
+# joué par le joueur ne reproduit ni une ligne ni une colonne déjà
+# présentes dans les configurations précédentes au même index.
+def verifier_memoire(memoire, jetons, cote, index):
     cols = inverser_matrice(jetons)
-   
     format = len(jetons)
    
-    config_existante = False
- 
-    for config in memoire_jetons:
+    for config in memoire:
         cols_config = inverser_matrice(config)
-        for index in range(format):
-            if cols[index] == cols_config[index] and 0 not in cols[index]:
+        if cote in [1,3]:
+            if config[index] == jetons[index] and 0 not in jetons[index]:
                 return True
-            elif jetons[index] == config[index] and 0 not in jetons[index]:
+            elif cols_config[-(2 - cote)] == cols[-(2 - cote)]:
+                if 0 not in cols[-(2 - cote)]:
+                    return True
+        else:
+            if cols_config[index] == cols[index] and 0 not in cols[index]:
                 return True
-            else:
-                continue
+            elif cote == 2:
+                if config[3] == jetons[3] and 0 not in config[3]:
+                    return True
+            elif cote == 0:
+                if config[0] == jetons[0] and 0 not in config[0]:
+                    return True
     return False
+     
+   
+# Cette fonction est responsable de vérifier si le coup joué entraîne la
+# victoire du joueur. Le nombre de lignes/colonnes pleines sont comptabilisées
+# pour chaque joueur. La fonction retourne l'index de la ligne gagnante (ou
+# les index lorsque plus d'une ligne est remplie), de même que le joueur
+# gagnant
+def verifier_victoire(jetons):
+    # Inversion de la matrice pour la vérification des colonnes
+    cols = inverser_matrice(jetons)
+   
+    # Extraction du format de la matrice pour simuler une ligne gagnante
+    format = len(jetons)
+  
+    # Stocke les index des lignes pleines
+    lignes_horiz1 = []
+    lignes_horiz2 = []
+    lignes_verti1 = []
+    lignes_verti2 = []
+  
+    # Comptabilise les lignes remplies par chaque joueur
+    compteur1 = 0
+    compteur2 = 0
+  
+    # Identification des rangées/colonnes pleines un index à la fois
+    for index in range(format):
+        if jetons[index] == [1] * format:
+            lignes_horiz1.append(index)
+            compteur1 += 1
+        elif jetons[index] == [2] * format:
+            lignes_horiz2.append(index)
+            compteur2 += 1
+        elif cols[index] == [1] * format:
+            lignes_verti1.append(index)
+            compteur1 += 1
+        elif cols[index] == [2] * format:
+            lignes_verti2.append(index)
+            compteur2 += 1
 
-       
+    # Retourne le joueur gagnant et les index des lignes gagnantes
+    if compteur1 > compteur2:
+        return 1, lignes_verti1, lignes_horiz1
+    elif compteur2 > compteur1:
+        return 2, lignes_verti2, lignes_horiz2
+    else:
+        return -1, [], []
+      
 
 # Retourne une struct avec membres largeur et hauteur à partir du format donné
-
 def taille_de_la_grille(format):
     if format == 4:
         dims = struct(largeur = 47, hauteur = 47)
@@ -72,135 +128,91 @@ def taille_de_la_grille(format):
                       hauteur = 47 + nouveaux_pixels)
     return dims
 
+# Retourne une matrice de rectangles affichables à l'écran pour les
+# flèches du haut et du bas
+def fleches_haut_bas(x, dims, orientation):
+    ajust = dims.hauteur
+   
+    # Définit l'ajustement en y en fonction de l'orientation de la flèche
+    if orientation == "h":
+        y = [2, 3, 4, 3, 2]
+    elif orientation == "b":
+        y = [ajust - 4, ajust - 5, ajust - 6, ajust - 5, ajust - 4]
+   
+    # Les ajustements en x et y permettent de dessiner les autres flèches
+    fleche = ([9 + x, y[0], 1, 2],       # barre 1
+              [10 + x, y[1], 1, 2],      # barre 2
+              [11 + x, y[2], 1, 2],      # barre 3
+              [12 + x, y[3], 1, 2],      # barre 4
+              [13 + x, y[4], 1, 2])      # barre 5
+   
+    return fleche
 
 # Retourne une matrice de rectangles affichables à l'écran pour les
-# flèches du haut
-
-def fleches_haut(x, couleur):   
+# flèches du côté gauche et droite
+def fleches_gauche_droite(y, dims, orientation):
+    ajust = dims.largeur
+   
+    if orientation == "g":
+        x = [2, 3, 4, 3, 2]
+    elif orientation == "d":
+        x = [ajust - 4, ajust - 5, ajust - 6, ajust - 5, ajust - 4]
+   
+   
     # Positions de la première flèche en haut à gauche
     # Les ajustements en x et y permettent de dessiner les autres flèches
-    fleche = ([9 + x, 2, 1, 2],     # barre 1
-              [10 + x, 3, 1, 2],    # barre 2
-              [11 + x, 4, 1, 2],    # barre 3
-              [12 + x, 3, 1, 2],    # barre 4
-              [13 + x, 2, 1, 2])    # barre 5
-   
-    # Dessine la flèche barre par barre
-    for rect in range(len(fleche)):
-        fill_rectangle(fleche[rect][0],
-                       fleche[rect][1],
-                       fleche[rect][2],
-                       fleche[rect][3],
-                       couleur)
-    return fleche
-
-
-# Retourne une matrice de rectangles affichables à l'écran pour les
-# flèches du bas
-
-def fleches_bas(x, dims, couleur):
-    y = dims.hauteur
-    # Positions de la première flèche en bas à gauche
-    # Les ajustements en x et y permettent de dessiner les autres flèches
-    fleche = ([9 + x, y - 4, 1, 2],   # barre 1
-              [10 + x, y - 5, 1, 2],  # barre 2
-              [11 + x, y - 6, 1, 2],  # barre 3
-              [12 + x, y - 5, 1, 2],  # barre 4
-              [13 + x, y - 4, 1, 2])  # barre 5
-   
-    # Dessine la flèche barre par barre
-    for rect in range(len(fleche)):
-        fill_rectangle(fleche[rect][0],
-                       fleche[rect][1],
-                       fleche[rect][2],
-                       fleche[rect][3],
-                       couleur)
-    return fleche
-
-
-# Retourne une matrice de rectangles affichables à l'écran pour les
-# flèches du côté gauche
-
-def fleches_gauche(y, couleur):
-    # Positions de la première flèche en haut à gauche
-    # Les ajustements en x et y permettent de dessiner les autres flèches
-    fleche = ([2, 9 + y, 2, 1],    # barre 1
-              [3, 10 + y, 2, 1],   # barre 2
-              [4, 11 + y, 2, 1],   # barre 3
-              [3, 12 + y, 2, 1],   # barre 4
-              [2, 13 + y, 2, 1])   # barre 5
-   
-    # Dessine la flèche barre par barre
-    for rect in range(len(fleche)):
-        fill_rectangle(fleche[rect][0],
-                       fleche[rect][1],
-                       fleche[rect][2],
-                       fleche[rect][3],
-                       couleur)
-               
-    return fleche
-
-
-# Retourne une matrice de rectangles affichables à l'écran pour les
-# flèches du côté droit
-
-def fleches_droite(y, dims, couleur):
-    x = dims.largeur
-    # Positions de la première flèche en haut à droite
-    # Les ajustements en x et y permettent de dessiner les autres flèches
-    fleche = ([x - 4, 9 + y, 2, 1],     # barre 1
-              [x - 5, 10 + y, 2, 1],    # barre 2
-              [x - 6, 11 + y, 2, 1],    # barre 3
-              [x - 5, 12 + y, 2, 1],    # barre 4
-              [x - 4, 13 + y, 2, 1])    # barre 5
-   
-    # Dessine la flèche barre par barre
-    for rect in range(len(fleche)):
-        fill_rectangle(fleche[rect][0],
-                       fleche[rect][1],
-                       fleche[rect][2],
-                       fleche[rect][3],
-                       couleur)
+    fleche = ([x[0], 9 + y, 2, 1],    # barre 1
+              [x[1], 10 + y, 2, 1],   # barre 2
+              [x[2], 11 + y, 2, 1],   # barre 3
+              [x[3], 12 + y, 2, 1],   # barre 4
+              [x[4], 13 + y, 2, 1])   # barre 5
    
     return fleche
 
 
-# Retourne une matrice "fleches" composée des positions des flèches
+# Retourne une struct "fleches" composée des positions des flèches
 # des quatres côtés à afficher
-
 def initialisation_fleches(dims, couleur):
     nb_fleches = (dims.largeur - 14) // 8
-   
+  
     haut = []; bas = []; gauche = []; droite = []
-   
+  
     for decalage in range(nb_fleches):
         # Appel aux fonctions respectives pour chaque flèche
-        haut.append(fleches_haut(decalage * 8, couleur))
-        bas.append(fleches_bas(decalage * 8, dims, couleur))
-        gauche.append(fleches_gauche(decalage * 8, couleur))
-        droite.append(fleches_droite(decalage * 8, dims, couleur))
-       
+        haut.append(fleches_haut_bas(decalage * 8, dims, "h"))
+        bas.append(fleches_haut_bas(decalage * 8, dims, "b"))
+        gauche.append(fleches_gauche_droite(decalage * 8, dims, "g"))
+        droite.append(fleches_gauche_droite(decalage * 8, dims, "d"))
+   
+    # Objet avec les coordonnées de toutes les flèches
     fleches = struct(haut = haut,
                      bas = bas,
                      droite = droite,
                      gauche = gauche)
+   
+    # Dessiner toutes les flèches dans une couleur donnée
+    for index in range(nb_fleches):
+        dessiner_fleche(fleches.haut[index], couleur)
+        dessiner_fleche(fleches.bas[index], couleur)
+        dessiner_fleche(fleches.gauche[index], couleur)
+        dessiner_fleche(fleches.droite[index], couleur)
+
+
     return fleches
  
-   
-# Retourne une matrice de format NxN initialisée avec chaque élement
-# égal à zéro   
 
+# Retourne une matrice de format NxN initialisée avec chaque élement
+# égal à zéro  
 def creer_matrice(format):
     matrice = [None] * format
-   
+  
     for i in range(format):
         matrice[i] = [0] * format
-   
+  
     return matrice
  
-   
+
 # Retourne une matrice des lignes horizontales
-   
 def lignes_horizontales(dims, y):
     x = dims.largeur
     ligne = ([7, 7 + y, x - 15, 1],     # haut
@@ -212,37 +224,34 @@ def lignes_horizontales(dims, y):
 
 
 # Retourne une matrice des lignes verticales
-
 def lignes_verticales(dims, x):
     y = dims.hauteur
     ligne = ([7 + x, 7, 9, 1],           # haut
              [7 + x, y - 8, 9, 1],       # bas
              [7 + x, 7, 1, y - 15],      # gauche
              [15 + x, 7, 1, y - 15])     # droite
-   
+  
     return ligne
  
    
 # Retourne une grille initialisée avec les positions des lignes verticales
 # et horizontales
-
 def initialisation_grille(dims):
     nb_lignes = (dims.largeur - 14) // 8
-   
+  
     horiz = []; verti = []
-   
+  
     for decalage in range(nb_lignes):
         horiz.append(lignes_horizontales(dims, decalage * 8))
         verti.append(lignes_verticales(dims, decalage * 8))
 
     grille = struct(horiz = horiz, verti = verti)
-   
+  
     return grille
 
 
 # Initialisation de la matrice permettant de garder en mémoire la position
 # des jetons
-
 def initialisation_jetons(dims):
     taille_matrice = (dims.largeur - 14) // 8
     jetons = creer_matrice(taille_matrice)
@@ -251,70 +260,31 @@ def initialisation_jetons(dims):
 
 # Permet d'ajouter un jeton à différentes positions en fonction du joueur
 # et décale la matrice des positions des jetons en conséquence
-
-def ajouter_jeton(jetons, index, position, joueur, format):
+def ajouter_jeton(jetons, index, position, joueur):
+    remplie = [remplie_verti, remplie_horiz] * 2
+    decalage = [decalage_bas, decalage_gauche, decalage_haut, decalage_droite]
+    ajout = [ajout_verti, ajout_horiz] * 2
+   
     # La position tourne en sens horloge (haut = 0, droite = 1, ...)
-    if position == 0:
-       
-        if remplie_verti(jetons, index, format):
-            decalage_bas(jetons, index, joueur)
-        else:
-            ajout_verti(jetons, index, joueur, 0)
-       
-       
-    elif position == 1:
-       
-        if remplie_horiz(jetons, index, format):   
-            decalage_gauche(jetons, index, joueur, True)
-        else:
-            ajout_horiz(jetons, index, joueur, 1)
-       
-    elif position == 2:
-       
-        if remplie_verti(jetons, index, format):
-            decalage_haut(jetons, index, joueur)
-        else:
-            ajout_verti(jetons, index, joueur, 2)
-       
-    elif position == 3:
-       
-        if remplie_horiz(jetons, index, format):
-            decalage_droite(jetons, index, joueur, True)
-        else:
-            ajout_horiz(jetons, index, joueur, 3)
-       
-    dessiner_jetons(jetons)
-    return jetons
-
-
-def remplie_horiz(jetons, index, format):
-    compteur = 0
-   
-    for jeton in jetons[index]:
-        if jeton == 1 or jeton == 2:
-            compteur += 1
-           
-    if compteur == format:
-        return True
+    # Vérifie si la ligne est remplie et si oui, décaler les valeurs
+    if remplie[position](jetons, index):
+        decalage[position](jetons, index, joueur)
     else:
-        return False
-       
-   
-def remplie_verti(jetons, index, format):
-    colonne_originale = []
-    compteur = 0
-   
-    # Extraction des valeurs originales des jetons
-    for ligne in jetons:
-        colonne_originale.append(ligne[index])
-   
-    for jeton in colonne_originale:
-        if jeton == 1 or jeton == 2:
-            compteur += 1
-   
-    return True if compteur == format else False
+        ajout[position](jetons, index, joueur, position)
+           
+    dessiner_jetons(jetons)
 
    
+# Vérifie si la ligne horizontale à l'index donné est pleine
+def remplie_horiz(jetons, index):
+    return False if 0 in jetons[index] else True
+
+# Vérifie si la ligne verticale à l'index donné est pleine          
+def remplie_verti(jetons, index):
+    jetons_inverse = inverser_matrice(jetons)
+    return remplie_horiz(jetons_inverse, index)
+
+  
 """
 TODO delete this comment after refactoring into
 multiple functions
@@ -349,41 +319,41 @@ based on a few conditions
     that's basically it its just cloned 4x with slightly
     diff values to account for different sides
 
-   
+  
 """
-   
+  
 def ajout_horiz(jetons, index, joueur, cote):
     ligne = jetons[index]
-   
+  
     if cote == 1:
         temp = 1
-       
+      
         while temp <= len(ligne) - 1:
             if ligne[temp] == 0:
                 temp += 1
                 continue
             if ligne[temp] == 1 or ligne[temp] == 2:
-                print(temp)
                
+              
                 if (temp < len(ligne) -1 and
                    (ligne[temp - 1] != 0 or
                     ligne[temp + 1] == 0)):
                     temp += 1
                     continue
-               
+              
                 ligne[temp - 1] = ligne[temp]
                 ligne[temp]     = 0
-               
+              
                 temp += 1
-               
+              
         ligne[len(ligne)-1] = joueur
-      
+     
     if cote == 3:
-       
+      
         temp = len(ligne) - 2
-       
+      
         while temp >= 0:
-           
+          
             if ligne[temp] == 0:
                 temp -= 1
                 continue
@@ -393,17 +363,17 @@ def ajout_horiz(jetons, index, joueur, cote):
                     ligne[temp - 1] == 0)):
                     temp -= 1
                     continue
-               
+              
                 ligne[temp + 1] = ligne[temp]
                 ligne[temp]     = 0
-               
+              
                 temp -= 1
-       
+      
         ligne[0] = joueur
-               
-       
+              
+           
 #TODO split en plusieurs fonctions
-       
+      
 def ajout_verti(jetons, index, joueur, cote):
     ligne = []
 
@@ -447,7 +417,7 @@ def ajout_verti(jetons, index, joueur, cote):
                 if (temp > 0 and
                    (ligne[temp + 1] != 0 or
                     ligne[temp - 1] == 0)):
-                   
+                  
                     temp -= 1
                     continue
 
@@ -460,9 +430,8 @@ def ajout_verti(jetons, index, joueur, cote):
         for i in range(len(jetons)):
             jetons[i][index] = ligne[i]
 
-   
+           
 # Décale une rangée de la matrice des jetons vers la gauche
-   
 def decalage_gauche(jetons, index, joueur, matrice):
     if matrice:
         # Décale une ligne dans la matrice complète
@@ -476,7 +445,6 @@ def decalage_gauche(jetons, index, joueur, matrice):
 
    
 # Décale une rangée de la matrice des jetons vers la droite
-   
 def decalage_droite(jetons, index, joueur, matrice):
     if matrice:
         # Décale une ligne dans la matrice complète
@@ -490,41 +458,38 @@ def decalage_droite(jetons, index, joueur, matrice):
 
    
 # Décale une colonne de la matrice des jetons vers le haut
-   
 def decalage_haut(jetons, index, joueur):
     colonne_originale = []
-   
+  
     # Extraction des valeurs originales des jetons
     for ligne in jetons:
         colonne_originale.append(ligne[index])
-   
+  
     # Décalage des valeurs des jetons
     nouvelle_colonne = decalage_gauche(colonne_originale, 0, joueur, False)
-   
+  
     # Remplacement des valeurs des jetons dans la matrice
     for ligne in range(len(jetons)):
         jetons[ligne][index] = nouvelle_colonne[ligne]
-       
-       
+      
+      
 # Décale une colonne de la matrice des jetons vers le bas
-
 def decalage_bas(jetons, index, joueur):
     colonne_originale = []
-   
+  
     # Extraction des valeurs originales des jetons
     for ligne in jetons:
         colonne_originale.append(ligne[index])
-   
+  
     # Décalage des valeurs des jetons
     nouvelle_colonne = decalage_droite(colonne_originale, 0, joueur, False)
-   
+  
     # Remplacement des valeurs des jetons dans la matrice
     for ligne in range(len(jetons)):
         jetons[ligne][index] = nouvelle_colonne[ligne]
 
        
 # Dessine une flèche donnée sur la grille
-       
 def dessiner_fleche(fleche, couleur):
     if fleche is not None:
         for rect in range(len(fleche)):
@@ -533,19 +498,18 @@ def dessiner_fleche(fleche, couleur):
                            fleche[rect][2],
                            fleche[rect][3],
                            couleur)
-   
+           
 # Identifie la flèche survolée par la souris en fonction de la position
 # sur la grille
-
 def identifier_fleche(dims, fleches, grille, souris):
     x = (souris.x + 1) // 8
     y = (souris.y + 1) // 8
-   
+  
     format = (dims.largeur // 8) - 1
-   
+  
     fleche = None
     ligne = None
-   
+  
     if x == 0 and 0 < y <= format:          # Flèche à gauche
         fleche = fleches.gauche[y - 1]
         ligne = grille.horiz[y - 1]
@@ -558,13 +522,12 @@ def identifier_fleche(dims, fleches, grille, souris):
     if y == format + 1 and 0 < x <= format: # Flèche en bas
         fleche = fleches.bas[x - 1]
         ligne = grille.verti[x - 1]
-       
+      
     return fleche, ligne if fleche is not None else -1
 
 
-           
-# Prend la matrice des jetons et affiche les couleurs des jetons à l'écran
-       
+          
+# Prend la matrice des jetons et affiche les couleurs des jetons à l'écran 
 def dessiner_jetons(jetons):
     for ligne in range(len(jetons)):
         for jeton in range(len(jetons[ligne])):
@@ -580,65 +543,60 @@ def dessiner_jetons(jetons):
                 fill_rectangle((jeton + 1) * 8 + 1,
                                (ligne + 1) * 8 + 1,
                                5, 5, noir)
-   
-   
-   
+  
+  
+
 # Fonction responsable de changer la couleur des lignes/flèches survolées
 # et de jouer un son lorsque survolées par la souris. La fonction
-# utilise ses états précédents pour se "rappeler" des ancients états       
-
-def surveiller_survol(dims, fleches, grille, souris, beep, etat_precedent):  
+# utilise ses états précédents pour se "rappeler" des ancients états      
+def surveiller_survol(dims, fleches, grille, souris, beep, etat_precedent): 
     # Surveille le survol et met à jour si nécessaire
     derniere_fleche, derniere_ligne = etat_precedent
 
     # Identifie la flèche/ligne survolée
     fleche_surv, ligne_surv = identifier_fleche(dims, fleches, grille, souris)
-
+   
     # Si flèche/ligne survolée change
     if fleche_surv != derniere_fleche or ligne_surv != derniere_ligne:
-       
+      
         # Permettre au son de jouer
         beep = True
-       
+      
         # Réinitialiser la dernière flèche/ligne survolée
         if derniere_fleche != -1:
             dessiner_fleche(derniere_fleche, jaune)
-          
+         
         if derniere_ligne != -1:
             dessiner_ligne(derniere_ligne, gris)
-           
+          
 
-        # Dessiner nouvelle fleche
-        if fleche_surv != -1:
+        # Dessiner nouvelle fleche et nouvelle ligne
+        if fleche_surv != -1 and ligne_surv != -1:
             dessiner_fleche(fleche_surv, blanc)
-           
-        if ligne_surv != -1:
             dessiner_ligne(ligne_surv, blanc)
-    
+   
     # Vérifie que le son a le droit de jouer et ensuite l'interdit de jouer
     # jusqu'à temps qu'une nouvelle flèche se fasse survoler
     if beep is True and fleche_surv != -1 and ligne_surv != -1:
         son_survol_fleche()
         sleep(0.1)
         beep = False
-   
+  
     # Retourne l'état pour prochaine itération
     return (fleche_surv, ligne_surv), beep
-   
+  
    
 # Prend les dimensions et une grille en entrée, puis affiche la grille
 # à l'écran
-
 def dessiner_grille(dims, grille, couleur):
     nb_lignes = (dims.largeur - 14) // 8
-   
+  
     for i in range(nb_lignes):
         dessiner_ligne(grille.horiz[i], couleur)
         dessiner_ligne(grille.verti[i], couleur)
-       
-       
+      
+      
 # Prend les positions d'une ligne (rangée/colonne) donnée et affiche à l'écran
-
 def dessiner_ligne(ligne, couleur):
     for rect in range(len(ligne)):
         fill_rectangle(ligne[rect][0],
@@ -647,74 +605,99 @@ def dessiner_ligne(ligne, couleur):
                        ligne[rect][3],
                        couleur)
        
-       
-       
-# Retourne la ligne horizontale de la grille située à un index donné
-       
+# Retourne la ligne horizontale de la grille située à un index donné  
 def horiz_chercher_ligne(grille, index): return grille.horiz[index]
 
 
 # Retourne la ligne verticale de la grille située à un index donné
-
 def verti_chercher_ligne(grille, index): return grille.verti[index]
 
 
 ## Permet de dessiner le carré du joueur dans le coin gauche
-   
 def dessiner_joueur(joueur):
     couleur = rouge if joueur == 1 else vert
     fill_rectangle(1, 1, 5, 5, couleur)
 
 # Initialise la grille avec tous les aspects visuels
-
 def remplir_grille_initiale(dims):
     grille =  initialisation_grille(dims)
-    dessiner_grille(dims, grille, gris) 
+    dessiner_grille(dims, grille, gris)
     dessiner_joueur(1)
     fleches = initialisation_fleches(dims, jaune)
    
+   
 # Initialise les positions des jetons, des flèches et de la grille
 # et les stocke dans des objets pour y accéder
-
 def initialisation_objets(dims):
     jetons = initialisation_jetons(dims)
     fleches = initialisation_fleches(dims, jaune)
     grille = initialisation_grille(dims)
     return jetons, fleches, grille
 
+
+# Initialisation de laconfiguration de l'écran du jeu en fonction d'un format
+# de grille spécifié
 def initialisation_ecran_de_jeu(format):
     dims = taille_de_la_grille(format)
-    set_screen_mode(dims.largeur, dims.hauteur, 5)
-   
+    set_screen_mode(dims.largeur, dims.hauteur, 4)
+  
     return dims
+  
    
-
+# En cas de défaite d'un joueur, joue la musique triste et dessine la grille
+# de la couleur appropriée
 def defaite(dims, grille, joueur):
     musique_triste()
     dessiner_grille(dims, grille, rouge if joueur == 1 else vert)
     sleep(3)
-   
-    # unfinished
-def glisse(format):   #TODO abstract away the inits to an init function
 
-    #       INIT
+   
+# Dessine les lignes de victoire en fonction du joueur et de l'orientation
+def victoire_lignes(grille, lignes, joueur, orientation):
+    couleur = rouge if joueur == 1 else vert
+   
+    for index in lignes:
+        if orientation == "v":
+            ligne = verti_chercher_ligne(grille, index)
+        if orientation == "h":
+            ligne = horiz_chercher_ligne(grille, index)
+        dessiner_ligne(ligne, couleur)
+
+
+# En cas de victoire d'un joueur, fait jouer la musique joyeuse et dessine
+# les lignes horizontales et/ou verticales de la couleur appropriée
+def victoire(dims, grille, verti, horiz, joueur):
+    dessiner_grille(dims, grille, gris)
+    musique_joyeuse()
+    victoire_lignes(grille, verti, joueur, "v")
+    victoire_lignes(grille, horiz, joueur, "h")
+    sleep(3)
+  
+
+     ###### TO DO: Décrire la fonction principale            
+    # unfinished
+def glisse(format):
+
+    # Initialisation de tous les paramètres nécessaires associés à la grille
     print("init")
     dims = initialisation_ecran_de_jeu(format)
     jetons, fleches, grille = initialisation_objets(dims)
     remplir_grille_initiale(dims)
 
+    # Initialisation des variables de gestion des états du jeu
     partie_en_cours = True
     joueur = 1 # Tour du joueur (1 ou 2)
     etat_prec = (-1, -1)
     beep = False
-    memoire_jetons = []
-   
+    memoire_configs = []
+    gagnant = -1
+  
     # Boucle de jeu principale
-    while partie_en_cours:  
+    while partie_en_cours: 
         sleep(0.1)
         # Gère les entrées (déplacement de la souris)
         souris = get_mouse()
-   
+  
         # Gère les mises à jour des états
         etat_prec, beep  = surveiller_survol(dims,
                                       fleches,
@@ -723,46 +706,58 @@ def glisse(format):   #TODO abstract away the inits to an init function
                                       beep,
                                       etat_prec)
         selection = etat_prec[0]
-          
+       
+        # Gestion des actions lorsqu'un coup est joué
         if souris.button:
-            jouer_tour(selection, jetons, dims, joueur, souris, format)
-            config_existante = verifier_configuration(memoire_jetons, jetons)
-            for config in memoire_jetons:
-                print(config)
-
-            if config_existante:
+            cote, index = jouer_tour(selection, jetons, dims, joueur, souris)
+           
+            # Vérifie si le coup joué recrée une configuration précédente
+            config_existe = verifier_memoire(memoire_configs, jetons, cote,
+                                             index)
+           
+            # Vérifie si le coup joué entraîne la victoire d'un joueur
+            gagnant, index_verti, index_horiz = verifier_victoire(jetons)
+          
+            # Gestion des différents scénarios après que le coup soit joué
+            if config_existe:
                 defaite(dims, grille, joueur)
                 break
+           
+            elif gagnant != -1:
+                victoire(dims, grille, index_verti, index_horiz, joueur)
+                break
+           
             else:
                 copie = copie_matrice(jetons)
-                memoire_jetons.append(copie)
+                memoire_configs.append(copie)
+          
+            # Tour du joueur suivant
             joueur = 1 if joueur == 2 else 2
             dessiner_joueur(joueur)
-           
-           # print(jetons)
-            #print(remplie_verti(jetons, 4 ,format))
-
-        #TODO add check victory function
 
 
-def jouer_tour(ligne, jetons, dims, joueur, souris, format):
-   
+# Fonction permettant l'ajout d'un jeton dans la grille en fonction du joueur
+# et de la position de la souris
+def jouer_tour(ligne, jetons, dims, joueur, souris):
+  
     position = obtenir_cote(dims, souris)
    
     if souris.button:
         if ligne is not None and ligne[0] is not None:
             horiz = (position == 1 or position == 3)
             index = (ligne[0][horiz] // 8) - 1
-            ajouter_jeton(jetons, index, position, joueur, format)
+            ajouter_jeton(jetons, index, position, joueur)
             son_coup()
+           
+            return position, index
 
-   
+
 # Retourne le côté survolé par la souris
 def obtenir_cote(dims, souris):
     x = souris.x
     y = souris.y
-   
-   
+  
+  
     if x + 1 <= 8 and 8 <= y + 1 <= dims.hauteur - 8:
         return 3
     if 8 <= x - 1 <= dims.largeur and y - 1 >= dims.hauteur - 8:
@@ -771,27 +766,24 @@ def obtenir_cote(dims, souris):
         return 1
     if 8 <= x + 1 <= dims.largeur and y + 1 <= 8:
         return 0
-   
-   
+  
+  
 # Fonction générale permettant de faire jouer un son
-   
 def son(duree, frequence):
     beep(duree, frequence)
+
    
 # Encode le son pour quand on survole la flèche   
-   
 def son_survol_fleche():
     son(0.025, 1500)
-   
 
-# Encode le son pour quand un coup est joué   
    
+# Encode le son pour quand un coup est joué  
 def son_coup():
     son(0.15, 2000)
 
-   
-## Encode les sons pour la musique triste   
-   
+
+## Encode les sons pour la musique triste  
 def musique_triste():
     son(0.1, 1000)
     son(0.1, 900)
@@ -800,10 +792,9 @@ def musique_triste():
     son(0.1, 600)
     son(0.1, 500)
     son(0.75, 100)
-   
-   
+  
+  
 ## Encode les sons pour la musique joyeuse
-   
 def musique_joyeuse():
     son(0.1, 500)
     son(0.1, 600)
@@ -819,7 +810,7 @@ def musique_joyeuse():
     son(0.4, 1000)
 
 
-       
+# Appel à la fonction principale      
 glisse(4)
 
 
