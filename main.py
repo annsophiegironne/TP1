@@ -16,18 +16,6 @@ noir = "#000"
 
 from tp1 import *
 
-tour1 = [[1,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-tour2 = [[2,0,0,0],[1,0,0,0],[0,0,0,0],[0,0,0,0]]
-tour3 = [[1,0,0,0],[2,0,0,0],[1,0,0,0],[0,0,0,0]]
-tour4 = [[2,0,0,0],[1,0,0,0],[2,0,0,0],[1,0,0,0]]
-memoire_jetons = []
-memoire_jetons.append(tour1)
-memoire_jetons.append(tour2)
-memoire_jetons.append(tour3)
-memoire_jetons.append(tour4)
-
-
-
 # Inverse la matrice en mettant la colonne 1 à la position de la rangée 1
 # et ainsi de suite. Permet de vérifier les colonnes comme des rangées
 
@@ -43,6 +31,15 @@ def inverser_matrice(matrice):
         colonne = []
    
     return matrice_inverse
+
+def copie_matrice(matrice):
+    copie = []
+    for ligne in matrice:
+        nouvelle_ligne = []
+        for valeur in ligne:
+            nouvelle_ligne.append(valeur)
+        copie.append(nouvelle_ligne)
+    return copie
 
 def verifier_configuration(memoire_jetons, jetons):
     cols = inverser_matrice(jetons)
@@ -737,8 +734,8 @@ def glisse(format):   #TODO abstract away the inits to an init function
                 defaite(dims, grille, joueur)
                 break
             else:
-                config = jetons
-                memoire_jetons.append(config)
+                copie = copie_matrice(jetons)
+                memoire_jetons.append(copie)
             joueur = 1 if joueur == 2 else 2
             dessiner_joueur(joueur)
            
