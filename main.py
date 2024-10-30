@@ -242,11 +242,8 @@ def ajouter_jeton(jetons, index, position, joueur, format):
         
     dessiner_jetons(jetons)
     
-    
-"""
- OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR OSCAR
-   
-""" 
+
+
 def remplie_horiz(jetons, index, format):
     compteur = 0
     
@@ -276,64 +273,151 @@ def remplie_verti(jetons, index, format):
     else:
         return False
     
-def ajout_verti(jetons, index, joueur, cote):
-    colonne = []
+"""
+TODO delete this comment after refactoring into 
+multiple functions
+
+
+ok first of all sry for this mess of a function 
+but ajout_horiz et ajout_verti work the same heres how:
+
+
+this just consists of moving the whole row by 1 (left or right)
+based on a few conditions
+
+    1. it won't overwrite a jeton/its being shifted to an empty
+        space
+    2. if a jeton is is surrounded by empty spaces it caused this 
+        undefined behavior:
+
+        [1, 0, 0, 2, 0, 0, 1] 
+        + 1 on the left should give us:
+
+        [1, 1, 0, 2, 0, 0, 1]
+
+        but it gave:
+
+        [1, 1, 0, 0, 2, 0, 1] 
+
+        so thats what the big if statement 
+        is checking.
+
+    3. if a jeton is on an edge, don't move it
+
+    that's basically it its just cloned 4x with slightly 
+    diff values to account for different sides
+
     
-    for ligne in jetons:
-        colonne.append(ligne[index])
-        
-    if cote == 2:
-        temp = len(ligne) - 1
-        
-        # check from right to left until a 0 is found, if so replace it 
-        
-        while colonne[temp] != (1 or 2):
-            if colonne[temp] == 0:
-                colonne[temp] = joueur
-                for ligne in range(len(jetons)):
-                    jetons[ligne][index] = colonne[ligne]
-                break
-            temp -= 1
-       
-    if cote == 0:
-        temp = 0
-        
-        # check from left to right until a 0 is found, if so replace it
-        
-        while colonne[temp] != (1 or 2):
-            if colonne[temp] == 0:
-                colonne[temp] = joueur
-                for ligne in range(len(jetons)):
-                    jetons[ligne][index] = colonne[ligne]
-                break
-            temp += 1
+"""
     
 def ajout_horiz(jetons, index, joueur, cote):
     ligne = jetons[index]
     
     if cote == 1:
-        temp = len(ligne) - 1
+        temp = 1
         
-        # check from right to left until a 0 is found, if so replace it 
-        
-        while ligne[temp] != (1 or 2):
+        while temp <= len(ligne) - 1:
             if ligne[temp] == 0:
-                ligne[temp] = joueur
-                break
-            temp -= 1
+                temp += 1
+                continue
+            if ligne[temp] == 1 or ligne[temp] == 2:
+                print(temp)
+                
+                if (temp < len(ligne) -1 and
+                   (ligne[temp - 1] != 0 or 
+                    ligne[temp + 1] == 0)): 
+                    temp += 1
+                    continue
+                
+                ligne[temp - 1] = ligne[temp]
+                ligne[temp]     = 0
+                
+                temp += 1
+                
+        ligne[len(ligne)-1] = joueur
        
     if cote == 3:
-        temp = 0
         
-        # check from left to right until a 0 is found, if so replace it
+        temp = len(ligne) - 2
         
-        while ligne[temp] != (1 or 2):
+        while temp >= 0:
+            
             if ligne[temp] == 0:
-                ligne[temp] = joueur
-                break
-            temp += 1
+                temp -= 1
+                continue
+            if ligne[temp] == 1 or ligne[temp] == 2:
+                if (temp > 0             and
+                   (ligne[temp + 1] != 0 or 
+                    ligne[temp - 1] == 0)): 
+                    temp -= 1
+                    continue
+                
+                ligne[temp + 1] = ligne[temp]
+                ligne[temp]     = 0
+                
+                temp -= 1
         
- 
+        ligne[0] = joueur
+                
+        
+#TODO split en plusieurs fonctions
+        
+def ajout_verti(jetons, index, joueur, cote):
+    ligne = []
+
+    for jet in jetons:
+        ligne.append(jet[index])
+
+    if cote == 2:
+        temp = 1
+
+        while temp <= len(ligne) - 1:
+            if ligne[temp] == 0:
+                temp += 1
+                continue
+            if ligne[temp] == 1 or ligne[temp] == 2:
+                if (temp < len(ligne) - 1 and 
+                   (ligne[temp - 1] != 0 or 
+                    ligne[temp + 1] == 0)):
+                    temp += 1
+                    continue
+
+                ligne[temp - 1] = ligne[temp]
+                ligne[temp] = 0
+
+                temp += 1
+
+        ligne[len(ligne) - 1] = joueur
+
+        for i in range(len(jetons)):
+            jetons[i][index] = ligne[i]
+
+    if cote == 0:
+
+        temp = len(ligne) - 2
+
+        while temp >= 0:
+
+            if ligne[temp] == 0:
+                temp -= 1
+                continue
+            if ligne[temp] == 1 or ligne[temp] == 2:
+                if (temp > 0 and 
+                   (ligne[temp + 1] != 0 or 
+                    ligne[temp - 1] == 0)):
+                    
+                    temp -= 1
+                    continue
+
+                ligne[temp + 1] = ligne[temp]
+                ligne[temp] = 0
+
+                temp -= 1
+
+        ligne[0] = joueur
+        for i in range(len(jetons)):
+            jetons[i][index] = ligne[i]
+
     
 # Décale une rangée de la matrice des jetons vers la gauche
     
@@ -624,11 +708,12 @@ def mainGameLoop(format):   #TODO abstract away the inits to an init function
                                       etat_prec)
         selection = etat_prec[0]
        
-        jouer_tour(selection, jetons, dims, 2, souris, format)
+        jouer_tour(selection, jetons, dims, joueur, souris, format)
     
         if souris.button:
-            print(jetons)
-            print(remplie_verti(jetons, 4 ,format))
+            joueur = 1 if joueur == 2 else 2
+           # print(jetons)
+            #print(remplie_verti(jetons, 4 ,format))
        # dessiner_jetons(jetons)                            
 
         #TODO add player turn function
