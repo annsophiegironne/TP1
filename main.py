@@ -790,7 +790,7 @@ def victoire_lignes(grille, lignes, joueur, orientation):
 
 # En cas de victoire d'un joueur, fait jouer la musique joyeuse et dessine
 # les lignes horizontales et/ou verticales de la couleur appropriée
-def victoire(dims, grille, verti, horiz, joueur):
+def victoire(dims, grille, verti, horiz, fleches, joueur):
     dessiner_toutes_fleches(dims, fleches, jaune)
     dessiner_grille(dims, grille, gris)
     musique_joyeuse()
