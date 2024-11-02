@@ -296,43 +296,6 @@ def remplie_verti(jetons, index):
     jetons_inverse = inverser_matrice(jetons)
     return remplie_horiz(jetons_inverse, index)
 
-  
-"""
-TODO delete this comment after refactoring into
-multiple functions
-
-
-ok first of all sry for this mess of a function
-but ajout_horiz et ajout_verti work the same heres how:
-
-
-this just consists of moving the whole row by 1 (left or right)
-based on a few conditions
-
-    1. it won't overwrite a jeton/its being shifted to an empty
-        space
-    2. if a jeton is is surrounded by empty spaces it caused this
-        undefined behavior:
-
-        [1, 0, 0, 2, 0, 0, 1]
-        + 1 on the left should give us:
-
-        [1, 1, 0, 2, 0, 0, 1]
-
-        but it gave:
-
-        [1, 1, 0, 0, 2, 0, 1]
-
-        so thats what the big if statement
-        is checking.
-
-    3. if a jeton is on an edge, don't move it
-
-    that's basically it its just cloned 4x with slightly
-    diff values to account for different sides
-
-  
-"""
  
 # Décale une rangée de la matrice des jetons vers la gauche
 def decalage_gauche(jetons, index, joueur, matrice):
@@ -345,7 +308,6 @@ def decalage_gauche(jetons, index, joueur, matrice):
         # Décale une ligne donnée
         ligne_decalee = jetons[1:] + [joueur]
         return ligne_decalee
-
 
     
 # Décale une rangée de la matrice des jetons vers la droite
@@ -437,8 +399,7 @@ def identifier_fleche(dims, fleches, grille, souris):
 
 
 
-# Ajoute un jeton dans une case quand une 
-# des flêches horizontale est activée
+# Ajoute un jeton dans une case quand une des flèches horizontales est activée
 def ajout_horiz(jetons, index, joueur, cote):
     ligne = jetons[index]
   
@@ -447,8 +408,7 @@ def ajout_horiz(jetons, index, joueur, cote):
     if cote == 3: logique_gauche(ligne, joueur)
 
 
-# Ajoute un jeton dans une case quand une 
-# des flêches verticale est activée
+# Ajoute un jeton dans une case quand une des flèches verticales est activée
 def ajout_verti(jetons, index, joueur, cote):
     ligne = []
 
@@ -461,10 +421,10 @@ def ajout_verti(jetons, index, joueur, cote):
 
 
 # Les fonctions logique_droite et logique_gauche fonctionnent
-# de la même mannière, la seule différence est le sense de l'operation.
+# de la même manière, la seule différence est le sens de l'opération.
 # (gauche à droite ou droite à gauche)
-# Elles sont résponsable d'appliquer les changement sur la grille pour 
-# chaques jetons placés. 
+# Elles sont responsables d'appliquer les changements sur la grille pour 
+# chaque jeton placé. 
 def logique_droite(ligne, joueur):
     
     length = len(ligne)-1
@@ -477,9 +437,9 @@ def logique_droite(ligne, joueur):
     temp = 1 
     
     # Cet algorithme ignore la première case puis 
-    # vérifie que si il y a un jetons sur une case 
+    # vérifie que s'il y a un jeton sur une case 
     # qui n'est pas entourée de cases vides, alors, 
-    # deplace le jetons a la prochaine case.
+    # déplace le jeton à la prochaine case.
     # Ce processus est répété pour l'entièreté de la ligne.
     while temp <= length:
         if ligne[temp] == 0:
@@ -492,22 +452,22 @@ def logique_droite(ligne, joueur):
                 temp += 1
                 continue
             
-            # déplcae jeton 
+            # Déplace le jeton 
             ligne[temp - 1] = ligne[temp]
             ligne[temp]     = 0
           
             temp += 1
 
-    # Assigne le jetons de la couleur du joueur 
+    # Assigne le jeton de la couleur du joueur 
     # à la dernière case de la ligne. 
     ligne[length] = joueur
 
 
 # Les fonctions logique_droite et logique_gauche fonctionnent
-# de la même mannière, la seule différence est le sense de l'operation.
+# de la même manière, la seule différence est le sens de l'opération.
 # (gauche à droite ou droite à gauche)
-# Elles sont résponsable d'appliquer les changement sur la grille pour 
-# chaques jetons placés. 
+# Elles sont responsables d'appliquer les changements sur la grille pour 
+# chaque jeton placé. 
 def logique_gauche(ligne, joueur):
     
     if ligne[0] == 0:
@@ -518,9 +478,9 @@ def logique_gauche(ligne, joueur):
       
 
     # Cet algorithme ignore la première case puis 
-    # vérifie que si il y a un jetons sur une case 
+    # vérifie que s'il y a un jeton sur une case 
     # qui n'est pas entourée de cases vides, alors, 
-    # deplace le jetons a la prochaine case.
+    # déplace le jeton à la prochaine case.
     # Ce processus est répété pour l'entièreté de la ligne.
     while temp >= 0:
         
@@ -537,7 +497,7 @@ def logique_gauche(ligne, joueur):
         
         
         
-            # déplace jeton
+            # Déplace le jeton
             ligne[temp + 1] = ligne[temp]
             ligne[temp]     = 0
             
@@ -549,22 +509,21 @@ def logique_gauche(ligne, joueur):
 
 
 # Les fonctions logique_haut et logique_bas fonctionnent
-# de la même mannière, la seule différence est le sense de l'operation.
+# de la même manière, la seule différence est le sens de l'opération.
 # (gauche à droite ou droite à gauche)
-# Ici gauche et droite car comme dans logique_gauche/droite ces fonctions
-# fonctionnent de la même mannière mais convertissent chaque instance 
-# de case de rangé à index i en une ligne puis retourn cette ligne 
+# Les fonctions haut et bas convertissent chaque instance 
+# de case de rangée à index i en une ligne puis retourne cette ligne 
 # à la fin de la fonction.
-# Elles sont résponsable d'appliquer les changement sur la grille pour 
-# chaques jetons placés. 
+# Elles sont responsables d'appliquer les changements sur la grille pour 
+# chaque jeton placé. 
 def logique_haut(ligne, joueur, jetons, index):
     temp = len(ligne) - 2
 
 
     # Cet algorithme ignore la première case puis 
-    # vérifie que si il y a un jetons sur une case 
+    # vérifie que s'il y a un jeton sur une case 
     # qui n'est pas entourée de cases vides, alors, 
-    # deplace le jetons a la prochaine case.
+    # déplace le jeton à la prochaine case.
     # Ce processus est répété pour l'entièreté de la ligne.
     while temp >= 0:
 
@@ -596,14 +555,13 @@ def logique_haut(ligne, joueur, jetons, index):
 
 
 # Les fonctions logique_haut et logique_bas fonctionnent
-# de la même mannière, la seule différence est le sense de l'operation.
+# de la même manière, la seule différence est le sens de l'opération.
 # (gauche à droite ou droite à gauche)
-# Ici gauche et droite car comme dans logique_gauche/droite ces fonctions
-# fonctionnent de la même mannière mais convertissent chaque instance 
-# de case de rangé à index i en une ligne puis retourn cette ligne 
+# Les fonctions haut et bas convertissent chaque instance 
+# de case de rangée à index i en une ligne puis retournent cette ligne 
 # à la fin de la fonction.
-# Elles sont résponsable d'appliquer les changement sur la grille pour 
-# chaques jetons placés. 
+# Elles sont responsables d'appliquer les changements sur la grille pour 
+# chaque jeton placé. 
 def logique_bas(ligne, joueur, jetons, index):
    
 
@@ -953,4 +911,4 @@ def musique_joyeuse():
 
 
 # Appel à la fonction principale      
-glisse(4)
+glisse(5)
