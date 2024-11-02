@@ -596,7 +596,10 @@ def logique_bas(ligne, joueur, jetons, index):
     length = len(ligne)-1
      
     if ligne[length] == 0:
-        ligne[length] = 0
+        ligne[length] = joueur
+        
+        for i in range(len(jetons)):
+            jetons[i][index] = ligne[i]
         return
               
     temp = 1
@@ -817,8 +820,7 @@ def glisse(format):
                 cote, index = jouer_tour(selection, 
                                          jetons, 
                                          dims, 
-                                         joueur, 
-                                         souris)
+                                         joueur, souris)
             except:
                 continue
             # Vérifie si le coup joué recrée une configuration précédente
