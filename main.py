@@ -720,7 +720,7 @@ def initialisation_objets(dims):
 # de grille spécifié
 def initialisation_ecran_de_jeu(format):
     dims = taille_de_la_grille(format)
-    set_screen_mode(dims.largeur, dims.hauteur, 4)
+    set_screen_mode(dims.largeur, dims.hauteur, 6)
   
     return dims
   
@@ -851,20 +851,22 @@ def jouer_tour(ligne, jetons, dims, joueur, souris):
 
 # Retourne le côté survolé par la souris
 def obtenir_cote(dims, souris):
-    x = souris.x
-    y = souris.y
+    x = souris.x + 1
+    y = souris.y + 1
   
     # Détermine le côté en fonction des extrémités survolées
-    if x + 1 <= 8 and 8 <= y + 1 <= dims.hauteur - 8:
+    if x  <= 8 and 8 <= y <= dims.hauteur - 8:
         return 3
-    elif 8 <= x - 1 <= dims.largeur and y - 1 >= dims.hauteur - 8:
+    elif 8 <= x <= dims.largeur and y >= dims.hauteur - 8:
         return 2
-    elif x - 1 >= dims.largeur - 8 and 8 <= y - 1 <= dims.hauteur - 8:
+    elif x >= dims.largeur - 8 and 8 <= y <= dims.hauteur - 8:
         return 1
-    elif 8 <= x + 1 <= dims.largeur and y + 1 <= 8:
+    elif 8 <= x <= dims.largeur and y <= 8:
         return 0
-  
-  
+    else:
+         None
+
+            
 # Fonction générale permettant de faire jouer un son
 def son(duree, frequence):
     beep(duree, frequence)
