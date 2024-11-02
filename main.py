@@ -2,7 +2,13 @@
 # Date: 20 octobre 2024
 # Matricules: 20153433 et 20273034
 #
-# TODO: Écrire la description du programme
+# Ce programme encode un jeu sur ordinateur pour 2 personnes, 
+# le jeu de "glisse". Le principe est similaire au tic tac toe, le joueur
+# qui remplit le plus de lignes gagne la partie. Le joueur peut ajouter son
+# jeton sur la grille en cliquant sur les flèches des quatre côtés. Attention
+# à ne pas répéter des configurations précédentes! Le jeu de glisse fonctionne
+# pour des grilles de 4x4, 5x5 et 6x6.
+
 # TODO: Changer scale à 4 dans glisse() quand fini
 
 
@@ -71,7 +77,7 @@ def verifier_memoire(memoire, jetons, cote, index):
                     return True
     return False
      
-   
+
 # Cette fonction est responsable de vérifier si le coup joué entraîne la
 # victoire du joueur. Le nombre de lignes/colonnes pleines sont comptabilisées
 # pour chaque joueur. La fonction retourne l'index de la ligne gagnante (ou
@@ -191,15 +197,20 @@ def initialisation_fleches(dims, couleur):
                      gauche = gauche)
    
     # Dessiner toutes les flèches dans une couleur donnée
+    dessiner_toutes_fleches(dims, fleches, jaune)
+
+    return fleches
+ 
+    
+# Permet de dessiner toutes les flèches d'un coup pour une couleur donnée    
+def dessiner_toutes_fleches(dims, fleches, couleur):
+    nb_fleches = (dims.largeur - 14) // 8
+
     for index in range(nb_fleches):
         dessiner_fleche(fleches.haut[index], couleur)
         dessiner_fleche(fleches.bas[index], couleur)
         dessiner_fleche(fleches.gauche[index], couleur)
         dessiner_fleche(fleches.droite[index], couleur)
-
-
-    return fleches
- 
 
 # Retourne une matrice de format NxN initialisée avec chaque élement
 # égal à zéro  
@@ -233,7 +244,7 @@ def lignes_verticales(dims, x):
   
     return ligne
  
-   
+
 # Retourne une grille initialisée avec les positions des lignes verticales
 # et horizontales
 def initialisation_grille(dims):
@@ -275,7 +286,7 @@ def ajouter_jeton(jetons, index, position, joueur):
            
     dessiner_jetons(jetons)
 
-   
+
 # Vérifie si la ligne horizontale à l'index donné est pleine
 def remplie_horiz(jetons, index):
     return False if 0 in jetons[index] else True
@@ -335,7 +346,8 @@ def decalage_gauche(jetons, index, joueur, matrice):
         ligne_decalee = jetons[1:] + [joueur]
         return ligne_decalee
 
-   
+
+    
 # Décale une rangée de la matrice des jetons vers la droite
 def decalage_droite(jetons, index, joueur, matrice):
     if matrice:
@@ -348,7 +360,7 @@ def decalage_droite(jetons, index, joueur, matrice):
         ligne_decalee = [joueur] + jetons[:-1]
         return ligne_decalee
 
-   
+    
 # Décale une colonne de la matrice des jetons vers le haut
 # Le paramètre matrice n'est pas utilisé, il sert à uniformiser l'utilisation
 # des fonctions de décalage
@@ -384,7 +396,8 @@ def decalage_bas(jetons, index, joueur, matrice):
     for ligne in range(len(jetons)):
         jetons[ligne][index] = nouvelle_colonne[ligne]
 
-       
+
+        
 # Dessine une flèche donnée sur la grille
 def dessiner_fleche(fleche, couleur):
     if fleche is not None:
@@ -394,7 +407,8 @@ def dessiner_fleche(fleche, couleur):
                            fleche[rect][2],
                            fleche[rect][3],
                            couleur)
-           
+
+            
 # Identifie la flèche survolée par la souris en fonction de la position
 # sur la grille
 def identifier_fleche(dims, fleches, grille, souris):
@@ -687,7 +701,8 @@ def surveiller_survol(dims, fleches, grille, souris, beep, etat_precedent):
     # Retourne l'état pour prochaine itération
     return (fleche_surv, ligne_surv), beep
   
-   
+
+    
 # Prend les dimensions et une grille en entrée, puis affiche la grille
 # à l'écran
 def dessiner_grille(dims, grille, couleur):
@@ -707,6 +722,7 @@ def dessiner_ligne(ligne, couleur):
                        ligne[rect][3],
                        couleur)
        
+    
 # Retourne la ligne horizontale de la grille située à un index donné  
 def horiz_chercher_ligne(grille, index): return grille.horiz[index]
 
@@ -717,7 +733,12 @@ def verti_chercher_ligne(grille, index): return grille.verti[index]
 
 ## Permet de dessiner le carré du joueur dans le coin gauche
 def dessiner_joueur(joueur):
-    couleur = rouge if joueur == 1 else vert
+    if joueur == 1:
+        couleur = rouge
+    elif joueur == 2:
+        couleur = vert
+    else:
+        couleur = noir
     fill_rectangle(1, 1, 5, 5, couleur)
 
 # Initialise la grille avec tous les aspects visuels
@@ -745,15 +766,16 @@ def initialisation_ecran_de_jeu(format):
   
     return dims
   
-   
+
 # En cas de défaite d'un joueur, joue la musique triste et dessine la grille
 # de la couleur appropriée
-def defaite(dims, grille, joueur):
+def defaite(dims, fleches, grille, joueur):
+    dessiner_toutes_fleches(dims, fleches, jaune)
     musique_triste()
     dessiner_grille(dims, grille, rouge if joueur == 1 else vert)
     sleep(3)
 
-   
+
 # Dessine les lignes de victoire en fonction du joueur et de l'orientation
 def victoire_lignes(grille, lignes, joueur, orientation):
     couleur = rouge if joueur == 1 else vert
@@ -769,19 +791,20 @@ def victoire_lignes(grille, lignes, joueur, orientation):
 # En cas de victoire d'un joueur, fait jouer la musique joyeuse et dessine
 # les lignes horizontales et/ou verticales de la couleur appropriée
 def victoire(dims, grille, verti, horiz, joueur):
+    dessiner_toutes_fleches(dims, fleches, jaune)
     dessiner_grille(dims, grille, gris)
     musique_joyeuse()
     victoire_lignes(grille, verti, joueur, "v")
     victoire_lignes(grille, horiz, joueur, "h")
     sleep(3)
-  
 
-     ###### TO DO: Décrire la fonction principale            
-    # unfinished
+    
+    
+# Fonction principale du jeu, regroupe tous les éléments nécessaires au
+# bon fonctionnement de la partie
 def glisse(format):
 
     # Initialisation de tous les paramètres nécessaires associés à la grille
-    print("init")
     dims = initialisation_ecran_de_jeu(format)
     jetons, fleches, grille = initialisation_objets(dims)
     remplir_grille_initiale(dims)
@@ -828,15 +851,15 @@ def glisse(format):
                                              index)
            
             # Vérifie si le coup joué entraîne la victoire d'un joueur
-            gagnant, index_verti, index_horiz = verifier_victoire(jetons)
+            gagnant, index_v, index_h = verifier_victoire(jetons)
           
             # Gestion des différents scénarios après que le coup soit joué
             if config_existe:
-                defaite(dims, grille, joueur)
+                defaite(dims, fleches, grille, joueur)
                 break
            
             elif gagnant != -1:
-                victoire(dims, grille, index_verti, index_horiz, joueur)
+                victoire(dims, grille, index_v, index_h, fleches, joueur)
                 break
            
             else:
@@ -845,15 +868,19 @@ def glisse(format):
           
             # Tour du joueur suivant
             joueur = 1 if joueur == 2 else 2
+            
+            dessiner_joueur(3)          # Change le carré du joueur en noir
+            
+            sleep(0.2)                  # Court temps de pause
             dessiner_joueur(joueur)
-
 
 # Fonction permettant l'ajout d'un jeton dans la grille en fonction du joueur
 # et de la position de la souris
 def jouer_tour(ligne, jetons, dims, joueur, souris):
   
     position = obtenir_cote(dims, souris)
-   
+    
+    # Si le bouton est enclenché
     if souris.button:
         if ligne is not None and ligne[0] is not None:
             horiz = (position == 1 or position == 3)
@@ -861,8 +888,8 @@ def jouer_tour(ligne, jetons, dims, joueur, souris):
             ajouter_jeton(jetons, index, position, joueur)
             son_coup()
             
-            # Empêche de click 2 fois accidentellement
-            sleep(0.2)
+            # Empêche de cliquer 2 fois accidentellement
+            sleep(0.1)
             
             return position, index
 
@@ -872,7 +899,7 @@ def obtenir_cote(dims, souris):
     x = souris.x
     y = souris.y
   
-  
+    # Détermine le côté en fonction des extrémités survolées
     if x + 1 <= 8 and 8 <= y + 1 <= dims.hauteur - 8:
         return 3
     if 8 <= x - 1 <= dims.largeur and y - 1 >= dims.hauteur - 8:
@@ -887,12 +914,12 @@ def obtenir_cote(dims, souris):
 def son(duree, frequence):
     beep(duree, frequence)
 
-   
+    
 # Encode le son pour quand on survole la flèche   
 def son_survol_fleche():
     son(0.025, 1500)
 
-   
+    
 # Encode le son pour quand un coup est joué  
 def son_coup():
     son(0.15, 2000)
@@ -926,11 +953,4 @@ def musique_joyeuse():
 
 
 # Appel à la fonction principale      
-glisse(5)
-
-
-# TODO: Supprimer quand on aura fini
-dims = taille_de_la_grille(4)
-jetons = initialisation_jetons(dims)
-fleches = initialisation_fleches(dims, jaune)
-grille = initialisation_grille(dims)
+glisse(4)
