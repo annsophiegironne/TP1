@@ -9,8 +9,7 @@
 # à ne pas répéter des configurations précédentes! Le jeu de glisse fonctionne
 # pour des grilles de 4x4, 5x5 et 6x6.
 
-# TODO: Changer scale à 4 dans glisse() quand fini
-
+from tp1 import *
 
 # Couleurs et codes RGB associés
 blanc = "#fff"
@@ -19,9 +18,6 @@ rouge = "#f00"
 vert = "#0f0"
 jaune = "#770"
 noir = "#000"
-
-from tp1 import *
-
 
 # Inverse la matrice en mettant la colonne 1 à la position de la rangée 1
 # et ainsi de suite. Permet de vérifier les colonnes comme des rangées
@@ -433,7 +429,6 @@ def logique_droite(ligne, joueur):
         ligne[length] = joueur
         return
     
-    
     temp = 1 
     
     # Cet algorithme ignore la première case puis 
@@ -475,8 +470,7 @@ def logique_gauche(ligne, joueur):
         return
     
     temp = len(ligne) - 2
-      
-
+     
     # Cet algorithme ignore la première case puis 
     # vérifie que s'il y a un jeton sur une case 
     # qui n'est pas entourée de cases vides, alors, 
@@ -494,8 +488,6 @@ def logique_gauche(ligne, joueur):
                 ligne[temp - 1] == 0)):
                 temp -= 1
                 continue
-        
-        
         
             # Déplace le jeton
             ligne[temp + 1] = ligne[temp]
@@ -519,7 +511,6 @@ def logique_gauche(ligne, joueur):
 def logique_haut(ligne, joueur, jetons, index):
     temp = len(ligne) - 2
 
-
     # Cet algorithme ignore la première case puis 
     # vérifie que s'il y a un jeton sur une case 
     # qui n'est pas entourée de cases vides, alors, 
@@ -536,8 +527,6 @@ def logique_haut(ligne, joueur, jetons, index):
                 ligne[temp - 1] == 0)):
                 temp -= 1
                 continue
-            
-            #if temp = 0 
 
             # Déplace jeton
             ligne[temp + 1] = ligne[temp]
@@ -563,8 +552,6 @@ def logique_haut(ligne, joueur, jetons, index):
 # Elles sont responsables d'appliquer les changements sur la grille pour 
 # chaque jeton placé. 
 def logique_bas(ligne, joueur, jetons, index):
-   
-
     length = len(ligne)-1
      
     if ligne[length] == 0:
@@ -619,7 +606,6 @@ def dessiner_jetons(jetons):
                                5, 5, noir)
   
   
-
 # Fonction responsable de changer la couleur des lignes/flèches survolées
 # et de jouer un son lorsque survolées par la souris. La fonction
 # utilise ses états précédents pour se "rappeler" des ancients états      
@@ -720,7 +706,7 @@ def initialisation_objets(dims):
 # de grille spécifié
 def initialisation_ecran_de_jeu(format):
     dims = taille_de_la_grille(format)
-    set_screen_mode(dims.largeur, dims.hauteur, 6)
+    set_screen_mode(dims.largeur, dims.hauteur, 4)
   
     return dims
   
@@ -910,4 +896,4 @@ def musique_joyeuse():
 
 
 # Appel à la fonction principale      
-glisse(5)
+glisse(4)
