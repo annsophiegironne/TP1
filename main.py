@@ -792,45 +792,40 @@ def glisse(format):
        
         # Gestion des actions lorsqu'un coup est joué
         if souris.button:
-            x = souris.x
-            y = souris.y
-            
-            
-            # 🩹
-            try:
-                cote, index = jouer_tour(selection, 
-                                         jetons, 
-                                         dims, 
-                                         joueur, souris)
-            except:
-                continue
-            # Vérifie si le coup joué recrée une configuration précédente
-            config_existe = verifier_memoire(memoire_configs, jetons, cote,
-                                             index)
-           
-            # Vérifie si le coup joué entraîne la victoire d'un joueur
-            gagnant, index_v, index_h = verifier_victoire(jetons)
-          
-            # Gestion des différents scénarios après que le coup soit joué
-            if config_existe:
-                defaite(dims, fleches, grille, joueur)
-                break
-           
-            elif gagnant != -1:
-                victoire(dims, grille, index_v, index_h, fleches, joueur)
-                break
-           
-            else:
-                copie = copie_matrice(jetons)
-                memoire_configs.append(copie)
-          
-            # Tour du joueur suivant
-            joueur = 1 if joueur == 2 else 2
-            
-            dessiner_joueur(3)          # Change le carré du joueur en noir
-            
-            sleep(0.2)                  # Court temps de pause
-            dessiner_joueur(joueur)
+            cote, index = jouer_tour(selection, 
+                                     jetons, 
+                                     dims, 
+                                     joueur, souris)
+
+            if cote != -1 and index != -1:    
+                # Vérifie si le coup joué recrée une configuration précédente
+                config_existe = verifier_memoire(memoire_configs, jetons, cote,
+                                                 index)
+
+                # Vérifie si le coup joué entraîne la victoire d'un joueur
+                gagnant, index_v, index_h = verifier_victoire(jetons)
+
+                # Gestion des différents scénarios après que le coup soit joué
+                if config_existe:
+                    defaite(dims, fleches, grille, joueur)
+                    break
+
+                elif gagnant != -1:
+                    victoire(dims, grille, index_v, index_h, 
+                                 fleches, joueur)
+                    break
+
+                else:
+                    copie = copie_matrice(jetons)
+                    memoire_configs.append(copie)
+
+                     # Tour du joueur suivant
+                    joueur = 1 if joueur == 2 else 2
+
+                    dessiner_joueur(3)   # Change le carré en noir
+
+                    sleep(0.2)           # Court temps de pause
+                    dessiner_joueur(joueur)
 
 # Fonction permettant l'ajout d'un jeton dans la grille en fonction du joueur
 # et de la position de la souris
@@ -840,7 +835,7 @@ def jouer_tour(ligne, jetons, dims, joueur, souris):
     
     # Si le bouton est enclenché
     if souris.button:
-        if ligne is not None and ligne[0] is not None:
+        if position is not None and ligne is not None and ligne[0] is not None:
             horiz = (position == 1 or position == 3)
             index = (ligne[0][horiz] // 8) - 1
             ajouter_jeton(jetons, index, position, joueur)
@@ -850,6 +845,8 @@ def jouer_tour(ligne, jetons, dims, joueur, souris):
             sleep(0.1)
             
             return position, index
+        else:
+            return -1, -1
 
 
 # Retourne le côté survolé par la souris
@@ -860,11 +857,11 @@ def obtenir_cote(dims, souris):
     # Détermine le côté en fonction des extrémités survolées
     if x + 1 <= 8 and 8 <= y + 1 <= dims.hauteur - 8:
         return 3
-    if 8 <= x - 1 <= dims.largeur and y - 1 >= dims.hauteur - 8:
+    elif 8 <= x - 1 <= dims.largeur and y - 1 >= dims.hauteur - 8:
         return 2
-    if x - 1 >= dims.largeur - 8 and 8 <= y - 1 <= dims.hauteur - 8:
+    elif x - 1 >= dims.largeur - 8 and 8 <= y - 1 <= dims.hauteur - 8:
         return 1
-    if 8 <= x + 1 <= dims.largeur and y + 1 <= 8:
+    elif 8 <= x + 1 <= dims.largeur and y + 1 <= 8:
         return 0
   
   
